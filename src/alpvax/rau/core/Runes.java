@@ -9,8 +9,33 @@ import alpvax.common.util.generics.StringMap;
 public class Runes
 {
 	//***********************RUNE LIST***********************
+	public static final Rune EE = add(new Rune(0, "ee").setPillaredAllowed());
+	public static final Rune HARR = add(new Rune(2, "harr").setPillaredAllowed());
+	public static final Rune KORR = add(new Rune(4, "korr").setPillaredAllowed());
+	public static final Rune MEH = add(new Rune(6, "meh").setPillaredAllowed());
+	public static final Rune SJUH = add(new Rune(8, "sjuh").setPillaredAllowed());
+	public static final Rune JA = add(new Rune(10, "ja").setPillaredAllowed());
+	public static final Rune CHAIR = add(new Rune(12, "chair").setPillaredAllowed());
+	public static final Rune ORR = add(new Rune(14, "orr").setPillaredAllowed());
+	public static final Rune LEUGH = add(new Rune(16, "leugh").setPillaredAllowed());
+	public static final Rune VARR = add(new Rune(18, "varr").setPillaredAllowed());
+	public static final Rune THORR = add(new Rune(20, "thorr").setPillaredAllowed());
+	public static final Rune NA = add(new Rune(22, "na").setPillaredAllowed());
+	public static final Rune BAIR = add(new Rune(24, "bair").setPillaredAllowed());
+	public static final Rune DUH = add(new Rune(26, "duh").setPillaredAllowed());
+	public static final Rune ARGH = add(new Rune(28, "argh").setPillaredAllowed());
+	public static final Rune SO = add(new Rune(30, "so").setPillaredAllowed());
+	public static final Rune TORR = add(new Rune(32, "torr").setPillaredAllowed());
+	public static final Rune PAIR = add(new Rune(34, "pair").setPillaredAllowed());
+	public static final Rune EURGH = add(new Rune(36, "eurgh").setPillaredAllowed());
+	public static final Rune GO = add(new Rune(38, "go").setPillaredAllowed());
+	public static final Rune CKHORR = add(new Rune(40, "ckhorr").setPillaredAllowed());
+	public static final Rune DJARR = add(new Rune(42, "djarr").setPillaredAllowed());
+	public static final Rune ROO = add(new Rune(44, "roo").setPillaredAllowed());
+	public static final Rune AIR = add(new Rune(46, "air").setPillaredAllowed());
+	public static final Rune FEE = add(new Rune(48, "fee").setPillaredAllowed());
+	public static final Rune EYE (OO) = add(new Rune(50, "eye (oo)").setPillaredAllowed());
 	public static final Rune RAU = add(new Rune(262, "rau"));
-	
 	
 
 	//***********************PROCESSING***********************
