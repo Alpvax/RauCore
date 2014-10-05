@@ -34,26 +34,41 @@ public class Runes
 	public static final Rune ROO = add(new Rune(44, "roo").setPillaredAllowed());
 	public static final Rune AIR = add(new Rune(46, "air").setPillaredAllowed());
 	public static final Rune FEE = add(new Rune(48, "fee").setPillaredAllowed());
-	public static final Rune EYE (OO) = add(new Rune(50, "eye (oo)").setPillaredAllowed());
-	public static final Rune RAU = add(new Rune(262, "rau"));
+	public static final Rune EYE = add(new Rune(50, "eye"));
+	public static final Rune OO = add(new Rune(51, "oo"));
+	
+	public static final Rune ATZ = add(new Rune(80, "atz"));
+	public static final Rune OHS = add(new Rune(81, "ohs"));
+	public static final Rune SJEM = add(new Rune(82, "sjem"));
+	public static final Rune OHNOH = add(new Rune(83, "ohnoh"));
+	public static final Rune NEVE = add(new Rune(84, "neve"));
+	public static final Rune FEEOH = add(new Rune(85, "fee-oh"));
+	public static final Rune TUVOH = add(new Rune(86, "tuvoh"));
+	public static final Rune ESTE = add(new Rune(87, "este"));
+	public static final Rune ELMA = add(new Rune(88, "elma"));
+	public static final Rune ALNU = add(new Rune(89, "alnu"));
+	
+	public static final Rune RAU = add(new Rune(256, "rau"));
+	public static final Rune RAN = add(new Rune(257, "ran"));
+	public static final Rune RULL = add(new Rune(258, "rull"));
+	public static final Rune ROCHK = add(new Rune(259, "rochk"));
 	
 
 	//***********************PROCESSING***********************
-	private static final int FIRST_INDEX = 0xE000;
+	public static final int FIRST_INDEX = 0xE000;
 	private static final String PILLARED_NAME = "pillared_%s";
 	
-	public static Map<Integer, Rune> runeList;
-	public static StringMap<Rune> runeMap;
-	public static Map<String, Rune> runeNames;
+	/** Map of Runes retrievable by index */
+	public static Map<Integer, Rune> runeList = new HashMap<Integer, Rune>();
+	/** Map of Runes retrievable by Object.toString() returning same as Rune.toString()*/
+	public static StringMap<Rune> runeMap = new StringMap<Rune>();
+	/** Map of Runes retrievable by unique_name */
+	public static Map<String, Rune> runeNames = new HashMap<String, Rune>();
+	/** Map of Runes retrievable by name. Will always return the unPillared version*/
+	public static Map<String, Rune> runeNamesBase = new HashMap<String, Rune>();
 	
 	private static Rune add(Rune rune)
 	{
-		if(runeList == null)
-		{
-			runeList = new HashMap<Integer, Rune>();
-			runeMap = new StringMap<Rune>();
-			runeNames = new HashMap<String, Rune>();
-		}
 		Integer i = Integer.valueOf(rune.index);
 		if(runeList.containsKey(i))
 		{
@@ -61,10 +76,14 @@ public class Runes
 		}
 		runeList.put(i, rune);
 		runeMap.put(rune.toString(), rune);
-		runeNames.put(rune.name, rune);
+		runeNames.put(rune.uniqueName, rune);
+		if(!runeNamesBase.containsKey(rune.name))
+		{
+			runeNamesBase.put(rune.name, rune);
+		}
 		if(rune.pillared == PillaredState.NORMAL)
 		{
-			add(new Rune(rune.index + 1, String.format(PILLARED_NAME, rune.name)).setPillared(PillaredState.PILLARED));
+			add(new Rune(rune.index + 1, rune.name).setPillared(PillaredState.PILLARED));
 		}
 		return rune;
 	}
@@ -73,6 +92,7 @@ public class Runes
 	{
 		public final int index;
 		public final String name;
+		public String uniqueName;
 		private PillaredState pillared = PillaredState.NONE;
 		
 		public Rune(int index, String name)
@@ -83,6 +103,7 @@ public class Runes
 			}
 			this.index = index;
 			this.name = name;
+			uniqueName = name;
 		}
 		
 		public Rune setPillaredAllowed()
@@ -92,7 +113,16 @@ public class Runes
 		private Rune setPillared(PillaredState state)
 		{
 			pillared = state;
+			uniqueName = state == PillaredState.PILLARED ? String.format(PILLARED_NAME, name) : name;
 			return this;
+		}
+		public Rune getPillared()
+		{
+			return runeNames.get(String.format(PILLARED_NAME, name));
+		}
+		public Rune getOtherState()
+		{
+			return allowPillared() ? isPillared() ? getPillared(): runeNamesBase.get(name) : null;
 		}
 		
 		public boolean allowPillared()
@@ -124,6 +154,12 @@ public class Runes
 		public boolean equals(Object other)
 		{
 			return other != null ? other.toString().equals(toString()) : false;
+		}
+		
+		public boolean equalsIgnoreCase(Rune other)
+		{
+			return other != null ? name.equals(other.name) : false;
+			//return other != null ? equals(runeList.get(Integer.valueOf(other.index + pillared.ordinal() - other.pillared.ordinal()))) : false;
 		}
 		
 		@Override
