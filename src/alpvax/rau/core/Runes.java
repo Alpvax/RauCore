@@ -52,6 +52,8 @@ public class Runes
 	public static final Rune RAN = add(new Rune(257, "ran"));
 	public static final Rune RULL = add(new Rune(258, "rull"));
 	public static final Rune ROCHK = add(new Rune(259, "rochk"));
+	public static final Rune VEE = add(new Rune(260, "vee"));
+	public static final Rune DEN = add(new Rune(261, "den"));
 	
 
 	//***********************PROCESSING***********************
