@@ -61,16 +61,23 @@ public class Runes
 	private static final String PILLARED_NAME = "pillared_%s";
 	
 	/** Map of Runes retrievable by index */
-	public static Map<Integer, Rune> runeList = new HashMap<Integer, Rune>();
+	public static Map<Integer, Rune> runeList;
 	/** Map of Runes retrievable by Object.toString() returning same as Rune.toString()*/
-	public static StringMap<Rune> runeMap = new StringMap<Rune>();
+	public static StringMap<Rune> runeMap;
 	/** Map of Runes retrievable by unique_name */
-	public static Map<String, Rune> runeNames = new HashMap<String, Rune>();
+	public static Map<String, Rune> runeNames;
 	/** Map of Runes retrievable by name. Will always return the unPillared version*/
-	public static Map<String, Rune> runeNamesBase = new HashMap<String, Rune>();
+	public static Map<String, Rune> runeNamesBase;
 	
 	private static Rune add(Rune rune)
 	{
+		if(runeList == null)
+		{
+			runeList = new HashMap<Integer, Rune>();
+			runeMap = new StringMap<Rune>();
+			runeNames = new HashMap<String, Rune>();
+			runeNamesBase = new HashMap<String, Rune>();
+		}
 		Integer i = Integer.valueOf(rune.index);
 		if(runeList.containsKey(i))
 		{
