@@ -9,55 +9,55 @@ import alpvax.common.util.generics.StringMap;
 public class Runes
 {
 	//***********************RUNE LIST***********************
-	public static final Rune EE = add(new Rune(0, "ee").setPillaredAllowed());
-	public static final Rune HARR = add(new Rune(2, "harr").setPillaredAllowed());
-	public static final Rune KORR = add(new Rune(4, "korr").setPillaredAllowed());
-	public static final Rune MEH = add(new Rune(6, "meh").setPillaredAllowed());
-	public static final Rune SJUH = add(new Rune(8, "sjuh").setPillaredAllowed());
-	public static final Rune JA = add(new Rune(10, "ja").setPillaredAllowed());
-	public static final Rune CHAIR = add(new Rune(12, "chair").setPillaredAllowed());
-	public static final Rune ORR = add(new Rune(14, "orr").setPillaredAllowed());
-	public static final Rune LEUGH = add(new Rune(16, "leugh").setPillaredAllowed());
-	public static final Rune VARR = add(new Rune(18, "varr").setPillaredAllowed());
-	public static final Rune THORR = add(new Rune(20, "thorr").setPillaredAllowed());
-	public static final Rune NA = add(new Rune(22, "na").setPillaredAllowed());
-	public static final Rune BAIR = add(new Rune(24, "bair").setPillaredAllowed());
-	public static final Rune DUH = add(new Rune(26, "duh").setPillaredAllowed());
-	public static final Rune ARGH = add(new Rune(28, "argh").setPillaredAllowed());
-	public static final Rune SO = add(new Rune(30, "so").setPillaredAllowed());
-	public static final Rune TORR = add(new Rune(32, "torr").setPillaredAllowed());
-	public static final Rune PAIR = add(new Rune(34, "pair").setPillaredAllowed());
-	public static final Rune EURGH = add(new Rune(36, "eurgh").setPillaredAllowed());
-	public static final Rune GO = add(new Rune(38, "go").setPillaredAllowed());
-	public static final Rune CKHORR = add(new Rune(40, "ckhorr").setPillaredAllowed());
-	public static final Rune DJARR = add(new Rune(42, "djarr").setPillaredAllowed());
-	public static final Rune ROO = add(new Rune(44, "roo").setPillaredAllowed());
-	public static final Rune AIR = add(new Rune(46, "air").setPillaredAllowed());
-	public static final Rune FEE = add(new Rune(48, "fee").setPillaredAllowed());
-	public static final Rune EYE = add(new Rune(50, "eye"));
-	public static final Rune OO = add(new Rune(51, "oo"));
+	public static final Rune EE = add(new Rune(0, RuneSection.LETTERS, "ee").setPillaredAllowed());
+	public static final Rune HARR = add(new Rune(2, RuneSection.LETTERS, "harr").setPillaredAllowed());
+	public static final Rune KORR = add(new Rune(4, RuneSection.LETTERS, "korr").setPillaredAllowed());
+	public static final Rune MEH = add(new Rune(6, RuneSection.LETTERS, "meh").setPillaredAllowed());
+	public static final Rune SJUH = add(new Rune(8, RuneSection.LETTERS, "sjuh").setPillaredAllowed());
+	public static final Rune JA = add(new Rune(10, RuneSection.LETTERS, "ja").setPillaredAllowed());
+	public static final Rune CHAIR = add(new Rune(12, RuneSection.LETTERS, "chair").setPillaredAllowed());
+	public static final Rune ORR = add(new Rune(14, RuneSection.LETTERS, "orr").setPillaredAllowed());
+	public static final Rune LEUGH = add(new Rune(16, RuneSection.LETTERS, "leugh").setPillaredAllowed());
+	public static final Rune VARR = add(new Rune(18, RuneSection.LETTERS, "varr").setPillaredAllowed());
+	public static final Rune THORR = add(new Rune(20, RuneSection.LETTERS, "thorr").setPillaredAllowed());
+	public static final Rune NA = add(new Rune(22, RuneSection.LETTERS, "na").setPillaredAllowed());
+	public static final Rune BAIR = add(new Rune(24, RuneSection.LETTERS, "bair").setPillaredAllowed());
+	public static final Rune DUH = add(new Rune(26, RuneSection.LETTERS, "duh").setPillaredAllowed());
+	public static final Rune ARGH = add(new Rune(28, RuneSection.LETTERS, "argh").setPillaredAllowed());
+	public static final Rune SO = add(new Rune(30, RuneSection.LETTERS, "so").setPillaredAllowed());
+	public static final Rune TORR = add(new Rune(32, RuneSection.LETTERS, "torr").setPillaredAllowed());
+	public static final Rune PAIR = add(new Rune(34, RuneSection.LETTERS, "pair").setPillaredAllowed());
+	public static final Rune EURGH = add(new Rune(36, RuneSection.LETTERS, "eurgh").setPillaredAllowed());
+	public static final Rune GO = add(new Rune(38, RuneSection.LETTERS, "go").setPillaredAllowed());
+	public static final Rune CKHORR = add(new Rune(40, RuneSection.LETTERS, "ckhorr").setPillaredAllowed());
+	public static final Rune DJARR = add(new Rune(42, RuneSection.LETTERS, "djarr").setPillaredAllowed());
+	public static final Rune ROO = add(new Rune(44, RuneSection.LETTERS, "roo").setPillaredAllowed());
+	public static final Rune AIR = add(new Rune(46, RuneSection.LETTERS, "air").setPillaredAllowed());
+	public static final Rune FEE = add(new Rune(48, RuneSection.LETTERS, "fee").setPillaredAllowed());
+	public static final Rune EYE = add(new Rune(50, RuneSection.LETTERS, "eye"));
+	public static final Rune OO = add(new Rune(51, RuneSection.LETTERS, "oo"));
 	
-	public static final Rune ATZ = add(new Rune(80, "atz"));
-	public static final Rune OHS = add(new Rune(81, "ohs"));
-	public static final Rune SJEM = add(new Rune(82, "sjem"));
-	public static final Rune OHNOH = add(new Rune(83, "ohnoh"));
-	public static final Rune NEVE = add(new Rune(84, "neve"));
-	public static final Rune FEEOH = add(new Rune(85, "fee-oh"));
-	public static final Rune TUVOH = add(new Rune(86, "tuvoh"));
-	public static final Rune ESTE = add(new Rune(87, "este"));
-	public static final Rune ELMA = add(new Rune(88, "elma"));
-	public static final Rune ALNU = add(new Rune(89, "alnu"));
+	public static final Rune ATZ = add(new Rune(0, RuneSection.NUMBERS, "atz"));
+	public static final Rune OHS = add(new Rune(1, RuneSection.NUMBERS, "ohs"));
+	public static final Rune SJEM = add(new Rune(2, RuneSection.NUMBERS, "sjem"));
+	public static final Rune OHNOH = add(new Rune(3, RuneSection.NUMBERS, "ohnoh"));
+	public static final Rune NEVE = add(new Rune(4, RuneSection.NUMBERS, "neve"));
+	public static final Rune FEEOH = add(new Rune(5, RuneSection.NUMBERS, "fee-oh"));
+	public static final Rune TUVOH = add(new Rune(6, RuneSection.NUMBERS, "tuvoh"));
+	public static final Rune ESTE = add(new Rune(7, RuneSection.NUMBERS, "este"));
+	public static final Rune ELMA = add(new Rune(8, RuneSection.NUMBERS, "elma"));
+	public static final Rune ALNU = add(new Rune(9, RuneSection.NUMBERS, "alnu"));
 	
-	public static final Rune RAU = add(new Rune(256, "rau"));
-	public static final Rune RAN = add(new Rune(257, "ran"));
-	public static final Rune RULL = add(new Rune(258, "rull"));
-	public static final Rune ROCHK = add(new Rune(259, "rochk"));
-	public static final Rune VEE = add(new Rune(260, "vee"));
-	public static final Rune DEN = add(new Rune(261, "den"));
+	public static final Rune RAU = add(new Rune(0, RuneSection.PUNCTUATION, "rau"));
+	public static final Rune RAN = add(new Rune(1, RuneSection.PUNCTUATION, "ran"));
+	public static final Rune RULL = add(new Rune(2, RuneSection.PUNCTUATION, "rull"));
+	public static final Rune ROCHK = add(new Rune(3, RuneSection.PUNCTUATION, "rochk"));
+	public static final Rune VEE = add(new Rune(4, RuneSection.PUNCTUATION, "vee"));
+	public static final Rune DEN = add(new Rune(5, RuneSection.PUNCTUATION, "den"));
 	
 
 	//***********************PROCESSING***********************
-	public static final int FIRST_INDEX = 0xE000;
+	public static FontType CURRENT_ENCODING = FontType.UNICODE;
 	private static final String PILLARED_NAME = "pillared_%s";
 	
 	/** Map of Runes retrievable by index */
@@ -78,7 +78,7 @@ public class Runes
 			runeNames = new HashMap<String, Rune>();
 			runeNamesBase = new HashMap<String, Rune>();
 		}
-		Integer i = Integer.valueOf(rune.index);
+		Integer i = Integer.valueOf(rune.index + rune.section.getStart(CURRENT_ENCODING));
 		if(runeList.containsKey(i))
 		{
 			throw new InvalidParameterException(String.format("Unable to register Rune \"%1$s\". Rune \"%2$s\" already registered with index %3$d.", rune.name, runeList.get(i).name, i));
@@ -92,19 +92,20 @@ public class Runes
 		}
 		if(rune.pillared == PillaredState.NORMAL)
 		{
-			add(new Rune(rune.index + 1, rune.name).setPillared(PillaredState.PILLARED));
+			add(new Rune(rune.index + 1, rune.section, rune.name).setPillared(PillaredState.PILLARED));
 		}
 		return rune;
 	}
 
-	public static class Rune
+	public static class Rune implements Comparable<Rune>
 	{
 		public final int index;
 		public final String name;
 		public String uniqueName;
 		private PillaredState pillared = PillaredState.NONE;
+		private RuneSection section;
 		
-		public Rune(int index, String name)
+		public Rune(int index, RuneSection type, String name)
 		{
 			if(index < 0 || index >= 6400)
 			{
@@ -113,6 +114,7 @@ public class Runes
 			this.index = index;
 			this.name = name;
 			uniqueName = name;
+			section = type;
 		}
 		
 		public Rune setPillaredAllowed()
@@ -145,7 +147,7 @@ public class Runes
 		
 		public RuneSection getSection()
 		{
-			return RuneSection.get(index);
+			return section;
 		}
 		
 		@Override
@@ -156,7 +158,7 @@ public class Runes
 		
 		public char toChar()
 		{
-			return (char)(FIRST_INDEX + index);
+			return (char)(section.getStart(CURRENT_ENCODING) + index);
 		}
 		
 		@Override
@@ -176,44 +178,63 @@ public class Runes
 		{
 			return toString().hashCode();
 		}
+
+		@Override
+		public int compareTo(Rune other)
+		{
+			int i = section.ordinal() - other.section.ordinal();
+			return i == 0 ? index - other.index : i;
+		}
 	}
 	
 	private enum PillaredState
 	{
 		NONE, NORMAL, PILLARED;
 	}
+	
+	private enum FontType
+	{
+		ASCII, UNICODE;
+	}
 		
 	public enum RuneSection
 	{
-		LETTERS(0),
-		NUMBERS(50),
-		PUNCTUATION(60),
-		GRAMMAR(100),
-		OTHER(200);
+		LETTERS(0, 0xE000),
+		NUMBERS(80, 0xE050),
+		PUNCTUATION(96, 0xE060),
+		FORMATTING(120, 0xE100),
+		OTHER(128, 0xE200);
 		/**
 		 * Use this as opposed to the values() method to prevent the array being cloned each time.
 		 * DO NOT MODIFY!
 		 */
 		public static final RuneSection[] values = values();
 		
-		private int start;
-		private RuneSection(int hexStart)
+		private int[] start;
+		private RuneSection(int... starts)
 		{
-			start = Integer.parseInt(String.format("E%03d", hexStart), 16);
-		}
-		
-		public static RuneSection get(int index)
-		{
-			RuneSection s = LETTERS;
-			for(RuneSection r : values)
+			if(starts == null || starts.length < 1)
 			{
-				if(index < r.start)
-				{
-					return s;
-				}
-				s = r;
+				throw new InvalidParameterException("Must have a start point for each supported Font type");
 			}
-			return OTHER;
+			start = new int[starts.length];
+			for(int i = 0; i < starts.length; i++)
+			{
+				start[i] = starts[i];
+			}
+		}
+
+		/*public int getStart()
+		{
+			return getStart(0);
+		}*/
+		public int getStart(FontType fontType)
+		{
+			return getStart(fontType.ordinal());
+		}
+		public int getStart(int fontType)
+		{
+			return fontType < 1 || fontType >= start.length ? start[0] : start [fontType];
 		}
 	}
 }
