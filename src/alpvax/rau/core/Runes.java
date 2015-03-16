@@ -206,11 +206,11 @@ public class Runes
 	public static final Rune NA = add(new Rune(22, RuneSection.LETTERS, "na").setPillaredAllowed());
 	public static final Rune BAIR = add(new Rune(24, RuneSection.LETTERS, "bair").setPillaredAllowed());
 	public static final Rune DUH = add(new Rune(26, RuneSection.LETTERS, "duh").setPillaredAllowed());
-	public static final Rune ARGH = add(new Rune(28, RuneSection.LETTERS, "argh").setPillaredAllowed());
+	public static final Rune ARR = add(new Rune(28, RuneSection.LETTERS, "arr").setPillaredAllowed());
 	public static final Rune SO = add(new Rune(30, RuneSection.LETTERS, "so").setPillaredAllowed());
 	public static final Rune TORR = add(new Rune(32, RuneSection.LETTERS, "torr").setPillaredAllowed());
 	public static final Rune PAIR = add(new Rune(34, RuneSection.LETTERS, "pair").setPillaredAllowed());
-	public static final Rune EURGH = add(new Rune(36, RuneSection.LETTERS, "eurgh").setPillaredAllowed());
+	public static final Rune EUGH = add(new Rune(36, RuneSection.LETTERS, "eugh").setPillaredAllowed());
 	public static final Rune GO = add(new Rune(38, RuneSection.LETTERS, "go").setPillaredAllowed());
 	public static final Rune CKHORR = add(new Rune(40, RuneSection.LETTERS, "ckhorr").setPillaredAllowed());
 	public static final Rune DJARR = add(new Rune(42, RuneSection.LETTERS, "djarr").setPillaredAllowed());

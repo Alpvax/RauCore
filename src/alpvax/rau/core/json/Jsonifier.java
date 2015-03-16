@@ -49,7 +49,7 @@ public class Jsonifier
 			for(int i = 0; i < 2; i++)
 			{
 				int j = r.getStart(i);
-				a.add(new JsonPrimitive(Integer.valueOf(j) + " (" + Integer.toString(j, 16) + ")"));
+				a.add(new JsonPrimitive(Integer.valueOf(j)));
 			}
 			o.add("start", a);
 			return a;//o;
@@ -74,7 +74,7 @@ public class Jsonifier
 
 	public static void main(String[] args)
 	{
-		String file = "setup_data.json";
+		String file = "build_data.json";
 		if(args.length >= 1)
 		{
 			file = args[0];
