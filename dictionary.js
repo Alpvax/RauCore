@@ -1,4 +1,15 @@
 var root = new Firebase('https://rau.firebaseio.com/');
+root.authWithOAuthPopup("google", function(error, authData)
+{
+    if (error)
+    {
+        console.log("Login Failed!", error);
+    }
+    else
+    {
+        console.log("Authenticated successfully with payload:", authData);
+    }
+});
 var runesRef = root.child("runes");
 var catsRef = root.child("runeCategories");
 
