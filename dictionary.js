@@ -1,28 +1,12 @@
 var root = new Firebase('https://rau.firebaseio.com/');
-root.authWithOAuthPopup("google", function(error, authData)
-{
-    if (error)
-    {
-        console.log("Login Failed!", error);
-    }
-    else
-    {
-        console.log("Authenticated successfully with payload:", authData);
-    }
-});
 var runesRef = root.child("runes");
 var catsRef = root.child("runeCategories");
 
-setupRuneCallbacks(runesRef);
-reSetRunes(runesRef);
-
-getRuneRef(11, 'letters', function(ref)
+function load()
 {
-    ref.on("value", function(snap)
-    {
-        console.log(snap.val());
-    });
-});
+    console.log("Loaded content");
+    $('#login').click(authenticate);
+}
 
 function getRuneNameFromIndex(index, category, callback)
 {
@@ -40,6 +24,36 @@ function getRuneNameFromIndex(index, category, callback)
         {
             console.log("No match");
         }
+    });
+}
+
+function authenticate(e)
+{
+    e.preventDefault();
+    root.authWithOAuthPopup("google", function(error, authData)
+    {
+        if(error)
+        {
+            console.log("Login Failed!", error);
+        }
+        else
+        {
+            console.log("Authenticated successfully with payload:", authData);
+            login(authData);
+        }
+    });
+}
+function login(authData)
+{
+    setupRuneCallbacks(runesRef);
+    reSetRunes(runesRef);
+    
+    getRuneNameFromIndex(11, 'letters', function(ref)
+    {
+        ref.on("value", function(snap)
+        {
+            console.log(snap.val());
+        });
     });
 }
 
@@ -90,6 +104,6 @@ function addRune(runeName, rune)
     {
         i = "0" + i;
     }
-    console.log("Priority for " + rune + " is: " + i);
+    console.log("Priority for " + runeName + " is: " + i);
     runesRef.child(runeName).setWithPriority(rune, rune['category'] + i);
 }
