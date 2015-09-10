@@ -1,11 +1,42 @@
 var root = new Firebase('https://rau.firebaseio.com/');
+root.onAuth(function(authData)
+{
+    if(authData)
+    {
+        // save the user's profile into the database so we can list users,
+        // use them in Security and Firebase Rules, and show profiles
+        var ref = root.child("users");
+        ref.once("value", function(snap)
+        {
+            if(!snap.hasChild(authData.uid))
+            {
+                console.log("Adding user: " + authData.google.displayName);
+                ref.child(authData.uid).set({
+                    provider: authData.provider,
+                    name: authData.google.displayName,//TODO: allow users to set their name
+                    access: {
+                        basic: true
+                    }
+                });
+            }
+        });
+    }
+});
 var runesRef = root.child("runes");
 var catsRef = root.child("runeCategories");
+setupRuneCallbacks(runesRef);
 
 function load()
 {
     console.log("Loaded content");
-    $('#login').click(authenticate);
+    $('#login').click(function(e)
+    {
+        e.preventDefault();
+        root.authWithOAuthPopup("google", function(error, authData)
+        {
+            authenticate(error, authData, true);
+        });
+    });
 }
 
 function getRuneNameFromIndex(index, category, callback)
@@ -27,25 +58,28 @@ function getRuneNameFromIndex(index, category, callback)
     });
 }
 
-function authenticate(e)
+function authenticate(error, authData, tryRedirect)
 {
-    e.preventDefault();
-    root.authWithOAuthPopup("google", function(error, authData)
+    if(error && tryRedirect && error.code === "TRANSPORT_UNAVAILABLE")
     {
-        if(error)
-        {
-            console.log("Login Failed!", error);
-        }
-        else
-        {
-            console.log("Authenticated successfully with payload:", authData);
-            login(authData);
-        }
-    });
+        // fall-back to browser redirects, and pick up the session
+        // automatically when we come back to the origin page
+        // second call will not have the tryRedirect parameter, so a recursive loop will never occur
+        root.authWithOAuthRedirect("google", authenticate);
+    }
+    else if(error)
+    {
+        console.log("Login Failed!", error);
+    }
+    else
+    {
+        console.log("Authenticated successfully with payload:", authData);
+        login(authData);
+    }
 }
 function login(authData)
 {
-    setupRuneCallbacks(runesRef);
+    //setupRuneCallbacks(runesRef);
     reSetRunes(runesRef);
     
     getRuneNameFromIndex(11, 'letters', function(ref)
