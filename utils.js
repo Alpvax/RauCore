@@ -43,6 +43,16 @@ else
     //document.getElementById("jQueryMobile").src = "https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js";
 }
 
+var entityMap = {
+    "&" : "&amp;",
+    "<" : "&lt;",
+    ">" : "&gt;",
+    "\"" : "&quot;",
+    "'" : "&#39;",
+    "/" : "&#x2F;",
+    "\n": "<br>"
+};
+
 function escapeHtml(string)
 {
     return String(string).replace(/[&<>"'\/\n]/g, function(s)
@@ -65,7 +75,7 @@ function log(logType)
     var error = r.type == "error";
     if(ALP_CONST.DEBUG & 2)
     {
-        $("#debugLog").innerHTML += "<br>" + (error ? '<span class="errorLog">' : "") + r.text + (error ? '</span>' : "");
+        $("#debugLog").append("<br>" + (error ? '<span class="errorLog">' : "") + r.text + (error ? '</span>' : ""));
     }
 }
 
@@ -129,6 +139,7 @@ function consoleFormat(format)
                 return parseFloat(arg);
             case "o":
             case "O":
+                console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
                 return JSON.stringify(arg, null, "\t");
             case "c":
                 var id = "conLogSpan" + logSpanNo++;

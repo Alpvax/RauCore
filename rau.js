@@ -1,4 +1,6 @@
 var root = new Firebase('https://rau.firebaseio.com/');
+var runesRef = root.child("runes");
+var categoryPriorities = {};
 root.onAuth(function(authData)
 {
     if(authData)
@@ -18,7 +20,7 @@ root.onAuth(function(authData)
             }
         }, function(error)
         {
-            log(error);
+            log("e", error);
         });
         login();
     }
@@ -27,12 +29,16 @@ root.onAuth(function(authData)
         logout();
     }
 });
-var runesRef = root.child("runes");
-var categoryPriorities = {};
+runesRef.on("child_added", function(snap)
+{
+    log("l", "%s: %O", snap.key(), snap.val());
+    var val = snap.val();
+    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(val.index), $("<td>").text(snap.key()), $("<td>").text(val.category), $("<td>").text(val.index)));
+});
 
 function load()
 {
-    if(ALP_CONST.DEBUG & 2)
+    if(!ALP_CONST.DEBUG & 2)
     {
         $('#debugLog').hide();
     }
@@ -70,12 +76,12 @@ function getRuneNameFromIndex(index, category, callback)
         {
             querySnapshot.forEach(function(rune)
             {
-                log(rune.key());
+                log('d', rune.key());
                 callback(runesRef.child(category).child(rune.key()));
             });
         }else
         {
-            log("No match");
+            log('l', "No match");
         }
     });
 }
@@ -93,29 +99,28 @@ function authenticate(error, authData, tryRedirect)
         }
         else
         {
-            log("Login Failed!", error);
+            log('e', "Login Failed!", error);
         }
     }
     else
     {
-        //log("Authenticated successfully with payload:", authData);
+        //log('l', "Authenticated successfully with payload:", authData);
         login(authData);
     }
 }
 
 function login()
 {
-    $('#runeScreen').html("<table><tr><th>Rune</th><th>Name</th><th>Type</th><th>Unicode code point</th></tr>" +
-    "" +
-    "</table>")
     $('#loginBtn').text("Log out");
     $('.login').hide();
-    $('#runeScreen').show();
+    $('.pages').show();
+    $('.runes').show();
 }
 function logout()
 {
     $('#loginBtn').text("Log in with Google");
     $('.login').show();
+    $('.pages').hide();
     $('.runes').hide();
     $('.dictionary').hide();
     $('.messaging').hide();
@@ -127,7 +132,7 @@ function reSetRunes()
     {
         snap1.forEach(function(snap)
         {
-            log(snap.val() + ": " + snap.key());
+            log('d', "%s: %O", snap.key(), snap.val());
             categoryPriorities[snap.val()] = parseInt(snap.key(), 16);
         });
         addAllRunes();
@@ -144,7 +149,7 @@ function reSetRunes()
 
 function addRune(runeName, rune)
 {
-    log("Priority for " + runeName + " is: " + (categoryPriorities[rune['category']] + rune['index']));
+    log('d', "Priority for " + runeName + " is: " + (categoryPriorities[rune['category']] + rune['index']));
     runesRef.child(runeName).setWithPriority(rune, categoryPriorities[rune['category']] + rune['index']);
 }
 
