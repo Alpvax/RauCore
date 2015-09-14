@@ -18,7 +18,7 @@ root.onAuth(function(authData)
             }
         }, function(error)
         {
-            console.log(error);
+            log(error);
         });
         login();
     }
@@ -32,6 +32,10 @@ var categoryPriorities = {};
 
 function load()
 {
+    if(ALP_CONST.DEBUG & 2)
+    {
+        $('#debugLog').hide();
+    }
     if(root.getAuth())//If already logged in, load as though logging in
     {
         login();
@@ -66,12 +70,12 @@ function getRuneNameFromIndex(index, category, callback)
         {
             querySnapshot.forEach(function(rune)
             {
-                console.log(rune.key());
+                log(rune.key());
                 callback(runesRef.child(category).child(rune.key()));
             });
         }else
         {
-            console.log("No match");
+            log("No match");
         }
     });
 }
@@ -89,12 +93,12 @@ function authenticate(error, authData, tryRedirect)
         }
         else
         {
-            console.log("Login Failed!", error);
+            log("Login Failed!", error);
         }
     }
     else
     {
-        //console.log("Authenticated successfully with payload:", authData);
+        //log("Authenticated successfully with payload:", authData);
         login(authData);
     }
 }
@@ -123,7 +127,7 @@ function reSetRunes()
     {
         snap1.forEach(function(snap)
         {
-            console.log(snap.val() + ": " + snap.key());
+            log(snap.val() + ": " + snap.key());
             categoryPriorities[snap.val()] = parseInt(snap.key(), 16);
         });
         addAllRunes();
@@ -140,7 +144,7 @@ function reSetRunes()
 
 function addRune(runeName, rune)
 {
-    console.log("Priority for " + runeName + " is: " + (categoryPriorities[rune['category']] + rune['index']));
+    log("Priority for " + runeName + " is: " + (categoryPriorities[rune['category']] + rune['index']));
     runesRef.child(runeName).setWithPriority(rune, categoryPriorities[rune['category']] + rune['index']);
 }
 
