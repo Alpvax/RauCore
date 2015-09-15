@@ -22,26 +22,36 @@ root.onAuth(function(authData)
         {
             log("e", "%O", error);
         });
-        login();
+        loginSetup();
     }
     else
     {
-        logout();
+        logoutSetup();
     }
 });
-runesRef.on("child_added", function(snap)
+
+function loginSetup()
 {
-    var val = snap.val();
-    function addRow(name, codePoint, category)
+    runesRef.on("child_added", function(snap)
     {
-        $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint.toString())), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
-    }
-    addRow(snap.key(), val.codePoint, val.category);
-    if(val.pillared)
-    {
-        addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
-    }
-});
+        var val = snap.val();
+        function addRow(name, codePoint, category)
+        {
+            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint.toString())), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
+        }
+        addRow(snap.key(), val.codePoint, val.category);
+        if(val.pillared)
+        {
+            addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
+        }
+    });
+    login();
+}
+function logoutSetup()
+{
+    runesRef.off();
+    logout();
+}
 
 function load()
 {
@@ -112,7 +122,7 @@ function authenticate(error, authData, tryRedirect)
     else
     {
         //log('l', "Authenticated successfully with payload:", authData);
-        login(authData);
+        //loginSetup();
     }
 }
 
