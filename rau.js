@@ -20,7 +20,7 @@ root.onAuth(function(authData)
             }
         }, function(error)
         {
-            log("e", error);
+            log("e", "%O", error);
         });
         login();
     }
@@ -32,10 +32,10 @@ root.onAuth(function(authData)
 runesRef.on("child_added", function(snap)
 {
     var val = snap.val();
-    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(val.codePoint.toString())), $("<td>").text(snap.key()), $("<td>").text(val.category), $("<td>").text(val.codePoint)));
+    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(val.codePoint.toString())), $("<td>").text(snap.key()), $("<td>").text(val.category), $("<td>").text(val.codePoint.toString(16).toUpperCase())));
     if(val.pillared)
     {
-        $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode((val.codePoint + 1).toString())), $("<td>").text("pillared " + snap.key()), $("<td>").text(val.category), $("<td>").text(val.codePoint + 1)));
+        $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode((val.codePoint + 1).toString())), $("<td>").text("pillared " + snap.key()), $("<td>").text(val.category), $("<td>").text((val.codePoint + 1).toString(16).toUpperCase())));
     }
 });
 
