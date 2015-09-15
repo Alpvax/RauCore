@@ -31,9 +31,12 @@ root.onAuth(function(authData)
 });
 runesRef.on("child_added", function(snap)
 {
-    log("l", "%s: %O", snap.key(), snap.val());
     var val = snap.val();
-    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(val.index), $("<td>").text(snap.key()), $("<td>").text(val.category), $("<td>").text(val.index)));
+    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(val.codePoint.toString())), $("<td>").text(snap.key()), $("<td>").text(val.category), $("<td>").text(val.codePoint)));
+    if(val.pillared)
+    {
+        $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode((val.codePoint + 1).toString())), $("<td>").text("pillared " + snap.key()), $("<td>").text(val.category), $("<td>").text(val.codePoint + 1)));
+    }
 });
 
 function load()
@@ -149,8 +152,11 @@ function reSetRunes()
 
 function addRune(runeName, rune)
 {
-    log('d', "Priority for " + runeName + " is: " + (categoryPriorities[rune['category']] + rune['index']));
-    runesRef.child(runeName).setWithPriority(rune, categoryPriorities[rune['category']] + rune['index']);
+    log('d', "Priority for %s is: %i + %i", runeName, categoryPriorities[rune['category']], rune['index']);
+    var i = (categoryPriorities[rune['category']] + rune['index']);
+    var ref = runesRef.child(runeName)
+    ref.setWithPriority(rune, i);
+    ref.update({codePoint: i});
 }
 
 function addAllRunes()
