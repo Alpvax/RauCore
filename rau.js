@@ -1,34 +1,7 @@
 var root = new Firebase('https://rau.firebaseio.com/');
 var runesRef = root.child("runes");
 var categoryPriorities = {};
-root.onAuth(function(authData)
-{
-    if(authData)
-    {
-        // save the user's profile into the database so we can list users,
-        // use them in Security and Firebase Rules, and show profiles
-        var ref = root.child("users").child(authData.uid);
-        ref.once("value", function(snap)
-        {
-            if(!snap.exists())
-            {
-                ref.set({
-                    provider: authData.provider,
-                    name: authData.google.displayName,//TODO: allow users to set their name
-                    access: "basic"
-                });
-            }
-        }, function(error)
-        {
-            log("e", "%O", error);
-        });
-        loginSetup();
-    }
-    else
-    {
-        logoutSetup();
-    }
-});
+
 
 function loginSetup()
 {
@@ -37,7 +10,7 @@ function loginSetup()
         var val = snap.val();
         function addRow(name, codePoint, category)
         {
-            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint.toString())), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
+            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint)), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
         }
         addRow(snap.key(), val.codePoint, val.category);
         if(val.pillared)
@@ -55,6 +28,34 @@ function logoutSetup()
 
 function load()
 {
+    root.onAuth(function(authData)
+    {
+        if(authData)
+        {
+            // save the user's profile into the database so we can list users,
+            // use them in Security and Firebase Rules, and show profiles
+            var ref = root.child("users").child(authData.uid);
+            ref.once("value", function(snap)
+            {
+                if(!snap.exists())
+                {
+                    ref.set({
+                        provider: authData.provider,
+                        name: authData.google.displayName,//TODO: allow users to set their name
+                        access: "basic"
+                    });
+                }
+            }, function(error)
+            {
+                log("e", "%O", error);
+            });
+            loginSetup();
+        }
+        else
+        {
+            logoutSetup();
+        }
+    });
     if(!ALP_CONST.DEBUG & 2)
     {
         $('#debugLog').hide();

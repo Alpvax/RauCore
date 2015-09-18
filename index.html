@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Rau</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/font.css" media="screen"><!-- -->
-    <!--<link rel="stylesheet" type="text/css" href="font.css" media="screen"><!-- -->
-    <script id="jQuery" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script><!-- JQuery -->
-    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script><!-- Firebase API -->
-    <script src="utils.js"></script>
-    <script src="rau.js"></script>
-  </head>
-  <body onload="load()">
-    <section class="page-header">
-      <h1 class="project-name">Raucore</h1>
-      <h2 class="project-tagline">Online version of the Dictionary</h2>
-      <a class="btn" id="loginBtn">Log in with Google</a>
-      <a class="btn pages" id="runesBtn">Runes</a>
-      <a class="btn pages" id="dictionaryBtn">Dictionary</a>
-      <!--<a class="btn pages" id="chatBtn">Log in with Google</a>-->
-      <!--<a href="https://github.com/Alpvax/RauCore/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/Alpvax/RauCore/tarball/master" class="btn">Download .tar.gz</a>-->
-    </section>
-    
-    <section class="main-content">
-        <div class="login" id="loginScreen">Log in to view</div>
-        <div class="runes" id="runeScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Type</th><th>Unicode code point</th></tr></table></div>
-        <div class="dictionary" id="dictionaryScreen"/>
-        <div class="messaging" id="messagingScreen"/>
+    <head>
+        <meta charset="UTF-8">
+        <title>Rau</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="stylesheets/font.css" media="screen"><!-- -->
+        <!--<link rel="stylesheet" type="text/css" href="font.css" media="screen"><!-- -->
+        <script id="jQuery" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script><!-- JQuery -->
+        <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script><!-- Firebase API -->
+        <script src="utils.js"></script>
+        <script src="rau.js"></script>
+    </head>
+    <body onload="load()">
+        <section class="page-header">
+            <h1 class="project-name">Raucore</h1>
+            <h2 class="project-tagline">Online version of the Dictionary</h2>
+            <a class="btn" id="loginBtn">Log in with Google</a>
+            <a class="btn pages" id="runesBtn">Runes</a>
+            <a class="btn pages" id="dictionaryBtn">Dictionary</a>
+            <!--<a class="btn pages" id="chatBtn">Log in with Google</a>-->
+            <!--<a href="https://github.com/Alpvax/RauCore/zipball/master" class="btn">Download .zip</a>
+            <a href="https://github.com/Alpvax/RauCore/tarball/master" class="btn">Download .tar.gz</a>-->
+        </section>
 
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/Alpvax/RauCore">Raucore</a> is maintained by <a href="https://github.com/Alpvax">Alpvax</a>.</span>
-      </footer>
-      
-      <div id="debugLog"/>
+        <section class="main-content">
+            <div class="login" id="loginScreen">Log in to view</div>
+            <div class="runes" id="runeScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Type</th><th>Unicode code point</th></tr></table></div>
+            <div class="dictionary" id="dictionaryScreen"></div>
+            <div class="messaging" id="messagingScreen"></div>
 
-    </section>
+            <footer class="site-footer">
+                <span class="site-footer-owner"><a href="https://github.com/Alpvax/RauCore">Raucore</a> is maintained by <a href="https://github.com/Alpvax">Alpvax</a>.</span>
+            </footer>
 
-  
-  </body>
+            <div id="debugLog">Console:<br></div>
+
+        </section>
+
+
+    </body>
 </html>
 
