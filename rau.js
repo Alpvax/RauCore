@@ -56,7 +56,7 @@ function load()
             logoutSetup();
         }
     });
-    if(!ALP_CONST.DEBUG & 2)
+    if(!(ALP_CONST.DEBUG & 2))
     {
         $('#debugLog').hide();
     }
