@@ -1,61 +1,39 @@
 var root = new Firebase('https://rau.firebaseio.com/');
 var runesRef = root.child("runes");
 var categoryPriorities = {};
-root.onAuth(function(authData)
-{
-    if(authData)
-    {
-        // save the user's profile into the database so we can list users,
-        // use them in Security and Firebase Rules, and show profiles
-        var ref = root.child("users").child(authData.uid);
-        ref.once("value", function(snap)
-        {
-            if(!snap.exists())
-            {
-                ref.set({
-                    provider: authData.provider,
-                    name: authData.google.displayName,//TODO: allow users to set their name
-                    access: "basic"
-                });
-            }
-        }, function(error)
-        {
-            log("e", "%O", error);
-        });
-        loginSetup();
-    }
-    else
-    {
-        logoutSetup();
-    }
-});
-
-function loginSetup()
-{
-    runesRef.on("child_added", function(snap)
-    {
-        var val = snap.val();
-        function addRow(name, codePoint, category)
-        {
-            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint.toString())), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
-        }
-        addRow(snap.key(), val.codePoint, val.category);
-        if(val.pillared)
-        {
-            addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
-        }
-    });
-    login();
-}
-function logoutSetup()
-{
-    runesRef.off();
-    logout();
-}
 
 function load()
 {
-    if(!ALP_CONST.DEBUG & 2)
+    root.onAuth(function(authData)
+    {
+        auth = authData;
+        if(authData)
+        {
+            // save the user's profile into the database so we can list users,
+            // use them in Security and Firebase Rules, and show profiles
+            var ref = root.child("users").child(authData.uid);
+            ref.once("value", function(snap)
+            {
+                if(!snap.exists())
+                {
+                    ref.set({
+                        provider: authData.provider,
+                        name: prompt("Enter your name", authData.google.displayName) || authData.google.displayName,
+                        access: "basic"
+                    });
+                    loginSetup();
+                }
+            }, function(error)
+            {
+                log("e", "%O", error);
+            });
+        }
+        else
+        {
+            logoutSetup();
+        }
+    });
+    if(!(ALP_CONST.DEBUG & 2))
     {
         $('#debugLog').hide();
     }
@@ -82,6 +60,46 @@ function load()
             });
         }
     });
+}
+
+function loginSetup()
+{
+    runesRef.on("child_added", function(snap)
+    {
+        var val = snap.val();
+        function addRow(name, codePoint, category)
+        {
+            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint)), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
+        }
+        addRow(snap.key(), val.codePoint, val.category);
+        if(val.pillared)
+        {
+            addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
+        }
+    });
+    login();
+}
+function logoutSetup()
+{
+    runesRef.off();
+    logout();
+}
+
+function login()
+{
+    $('#loginBtn').text("Log out");
+    $('.login').hide();
+    $('.pages').show();
+    $('.runes').show();
+}
+function logout()
+{
+    $('#loginBtn').text("Log in with Google");
+    $('.login').show();
+    $('.pages').hide();
+    $('.runes').hide();
+    $('.dictionary').hide();
+    $('.messaging').hide();
 }
 
 function getRuneNameFromIndex(index, category, callback)
@@ -124,23 +142,6 @@ function authenticate(error, authData, tryRedirect)
         //log('l', "Authenticated successfully with payload:", authData);
         //loginSetup();
     }
-}
-
-function login()
-{
-    $('#loginBtn').text("Log out");
-    $('.login').hide();
-    $('.pages').show();
-    $('.runes').show();
-}
-function logout()
-{
-    $('#loginBtn').text("Log in with Google");
-    $('.login').show();
-    $('.pages').hide();
-    $('.runes').hide();
-    $('.dictionary').hide();
-    $('.messaging').hide();
 }
 
 function reSetRunes()
