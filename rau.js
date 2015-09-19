@@ -163,7 +163,7 @@ function login()
     $('.loginBtn').hide();
     $('#logoutBtn').show();
     $('.pages').show();
-    pages.runes.show();
+    pages.messaging.show();
 }
 function logout()
 {
