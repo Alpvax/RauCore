@@ -35,31 +35,32 @@ var pages = {
         setup: function()
         {
             var ref = root.child('messaging').child('broadcast');
-            $('#messageInput').keypress(function(e)
+            $('#messageInput').on("keypress.postMessage", function(e)
             {
                 if(e.keyCode == 13)
                 {
-                    ref.push({user: root.getAuth().uid, text: $('#messageInput').val()});
+                    ref.push({user: root.getAuth().uid, text: $('#messageInput').val(), time: Firebase.ServerValue.TIMESTAMP});
                     $('#messageInput').val('');
                 }
             });
-            ref.on('child_added', function(snapshot)
+            ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
+                console.debug(snapshot.key(), message);
+                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr({"class": "messageComponentDate"}), $("<br>"));
+                $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
-                    displayChatMessage(snap.val().name, message.text);
+                    msg.append($('<span>').text(snap.val().name + ': ').attr({"class": "messageComponentName"}), $('<span>').text(message.text).attr({"class": "messageComponentBody"}));
+                    msg.attr({"class": "generatedData message", "data-message-type": root.getAuth().uid == message.user ? 's' : 'r'});
+                    $('#messagingScreen')[0].scrollTop = $('#messagingScreen')[0].scrollHeight;
                 });
             });
-            function displayChatMessage(name, text)
-            {
-                $('#messageInput').before($('<div/>').text(text).prepend($('<em/>').text(name + ': ')).attr("class", "generatedData"));
-                $('#messagingScreen')[0].scrollTop = $('#messagingScreen')[0].scrollHeight;
-            };
         },
         close: function()
         {
-            root.child('messaging').child('broadcast').off();
+            root.child('messaging').child('broadcast').orderByChild('time').off();
+            $('#messageInput').off("keypress.postMessage");
         },
         onShow: function()
         {
@@ -216,7 +217,7 @@ function authenticate(error, authData, provider, tryRedirect)
     }
     else
     {
-        console.log("Authenticated successfully with payload:", authData);
+        //console.log("Authenticated successfully with payload:", authData);
     }
 }
 
