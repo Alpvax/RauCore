@@ -70,15 +70,11 @@ var pages = {
 
 $(document).ready(function()
 {
-    if(!(ALP_CONST.DEBUG & 2))
-    {
-        $('#debugLog').hide();
-    }
     var last = "logout";
     for(var page in pages)
     {
         pages[page].hide();
-        $('#' + last + 'Btn').after($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page[0].toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
+        $('#' + last + 'Btn').after($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
             {
                 for(var p in pages)
                 {
