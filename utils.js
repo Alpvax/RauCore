@@ -61,7 +61,64 @@ function escapeHtml(string)
     });
 }
 
-function log(logType)
+(function()//setupConsole
+{
+    var methods = ['error', 'warn', 'info', 'log', 'debug'];
+    for(var i in methods)
+    {
+        var method = methods[i];
+        if(Function.prototype.bind)
+        {
+            console['o' + method] = Function.prototype.bind.call(console[method], console);
+        }
+        else
+        {
+            console['o' + method] = function()
+            { 
+                Function.prototype.apply.call(console.log, console, arguments);
+            };
+        }
+        console[method] = function()
+        {
+            if(ALP_CONST.DEBUG & 1)
+            {
+                console['o' + method].apply(console, arguments);
+            }
+            if(ALP_CONST.DEBUG & 2)
+            {
+                var text = "<br>";
+                for(var j in arguments)
+                {
+                    text += JSON.stringify(arguments[j]) + " ";
+                }
+                $("#debugLog").append(text);
+            }
+        }
+    }
+    /*window.log = function(l)
+    {
+        var level = "log";
+        var args = Array.prototype.slice.call(arguments, 1);
+        switch(l)
+        {
+            case "e":
+                level = "error";
+                break;
+            case "w":
+                level = "warn";
+                break;
+            case "i":
+                level = "info";
+                break;
+            case "d":
+                level = "debug";
+                break;
+        }
+        console[level].apply(console, args);
+    }*/
+})();
+
+/*function log(logType)
 {
     var options = {};
     options.logType = logType;
@@ -107,7 +164,7 @@ function getLogHTML(logOptions)
         console[level].apply(console, args);
     }
     return {
-        text: consoleFormat.apply(this, args),
+        text: escapeHtml(consoleFormat.apply(this, args)),
         type: level
     }
 }
@@ -127,7 +184,7 @@ function consoleFormat(format)
     var args = arguments;
     return format.replace(/%([sdifoOc])/g, function(match, type)
     {
-        var arg = typeof args[++index] != 'undefined' ? escapeHtml(args[index]) : match;
+        var arg = typeof args[++index] != 'undefined' ? args[index] : match;
         switch(type)
         {
             case "s":
@@ -139,7 +196,7 @@ function consoleFormat(format)
                 return parseFloat(arg);
             case "o":
             case "O":
-                //TODO: log object coming through as string console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
+                console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
                 return JSON.stringify(arg, null, "\t");
             case "c":
                 var id = "conLogSpan" + logSpanNo++;
@@ -154,4 +211,4 @@ function consoleFormat(format)
                 return "<span id=\"" + id + "\">";
         }
     }) + (styled ? "</span>" : "");
-}
+}*/
