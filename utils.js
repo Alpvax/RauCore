@@ -8,14 +8,6 @@ else
 {
     ALP_CONST.DEBUG = 0;
 }
-if(ALP_CONST.DEBUG & 1)
-{
-    console.log("DEBUG TO CONSOLE ENABLED");
-}
-if(ALP_CONST.DEBUG & 2)
-{
-    console.log("DEBUG TO PAGE ENABLED");
-}
 /*var stPage = /\?.*page=(\d|\w+)/i.exec(document.location.href);
 if(stPage && stPage[0])
 {
@@ -50,10 +42,11 @@ var entityMap = {
     "\"" : "&quot;",
     "'" : "&#39;",
     "/" : "&#x2F;",
-    "\n": "<br>"
+    "\n": "<br>",
+    "\t": "&nbsp&nbsp&nbsp&nbsp"
 };
 
-function escapeHtml(string)
+function formatHtml(string)
 {
     return String(string).replace(/[&<>"'\/\n]/g, function(s)
     {
@@ -86,97 +79,54 @@ function escapeHtml(string)
             }
             if(ALP_CONST.DEBUG & 2)
             {
-                var text = "<br>";
+                var text = "";
                 for(var j in arguments)
                 {
-                    text += JSON.stringify(arguments[j]) + " ";
+                    var arg = arguments[j];
+                    switch(typeof arg)
+                    {
+                        case "string":
+                            text += formatHtml(arg);
+                            break;
+                        case "number":
+                        case "boolean":
+                            text += arg.toString();
+                            break;
+                        default:
+                            text += JSON.stringify(arg);
+                    }
+                    text += "<br>";
                 }
-                $("#debugLog").append(text);
+                $('.windowConsole').each(function()
+                {
+                    var type = $(this).data('consoleType');
+                    if(type && type.indexOf(method.charAt(0)))
+                    {
+                        $(this).append(text);
+                    }
+                });
             }
         }
     }
-    /*window.log = function(l)
-    {
-        var level = "log";
-        var args = Array.prototype.slice.call(arguments, 1);
-        switch(l)
-        {
-            case "e":
-                level = "error";
-                break;
-            case "w":
-                level = "warn";
-                break;
-            case "i":
-                level = "info";
-                break;
-            case "d":
-                level = "debug";
-                break;
-        }
-        console[level].apply(console, args);
-    }*/
-})();
+}());
 
-/*function log(logType)
+$(document).ready(function()
 {
-    var options = {};
-    options.logType = logType;
-    //swap first parameter for options so arguments can be passed easily
-    logType = options;
-    if(!(ALP_CONST.DEBUG & 1))
+    if(ALP_CONST.DEBUG & 1)
     {
-        options.noConsole = true;
+        console.log("DEBUG TO CONSOLE ENABLED");
     }
-    var r = getLogHTML.apply(this, arguments);
-    var error = r.type == "error";
     if(ALP_CONST.DEBUG & 2)
     {
-        $("#debugLog").append("<br>" + (error ? '<span class="errorLog">' : "") + r.text + (error ? '</span>' : ""));
+        console.log("DEBUG TO PAGE ENABLED");
     }
-}
+    else
+    {
+        $('.windowConsole').hide();
+    }
+});
 
-function getLogHTML(logOptions)
-{
-    var level = "log";
-    var args = Array.prototype.slice.call(arguments, 1);
-    if(logOptions.logType)
-    {
-        var l = /^[ewild]/i.exec(logOptions.logType);
-        switch(l[0])
-        {
-            case "e":
-                level = "error";
-                break;
-            case "w":
-                level = "warn";
-                break;
-            case "i":
-                level = "info";
-                break;
-            case "d":
-                level = "debug";
-                break;
-        }
-    }
-    if(!logOptions.noConsole)
-    {
-        console[level].apply(console, args);
-    }
-    return {
-        text: escapeHtml(consoleFormat.apply(this, args)),
-        type: level
-    }
-}
-function stringFormat(format)
-{
-    var args = Array.prototype.slice.call(arguments, 1);
-    return format.replace(/{(\d+)}/g, function(match, index)
-    { 
-        return typeof args[index] != 'undefined' ? args[index] : match;
-    });
-}
-var logSpanNo = 0;
+/*var logSpanNo = 0;
 function consoleFormat(format)
 {
     var index = 0;
@@ -204,7 +154,7 @@ function consoleFormat(format)
                                                                         var x = document.createElement("style");
                                                                         document.head.appendChild(x);
                                                                         return x;
-                                                                    })();
+                                                                    }());
                 var t = document.createTextNode("#" + id + "{" + arg + "}");
                 x.appendChild(t);
                 styled = true;
