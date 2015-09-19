@@ -122,7 +122,7 @@ $(document).ready(function()
                 login();
             }, function(error)
             {
-                log("e", "%O", error);
+                console.error("Error logging in", error);
             });
         }
         else
@@ -188,7 +188,7 @@ function RauPage(key, funcs)
             {
                 f();
             }
-    }
+    };
     this.hide = function(){
             $('#' + key + 'Screen').hide();
             var f = funcs.onHide;
@@ -196,7 +196,10 @@ function RauPage(key, funcs)
             {
                 f();
             }
-    }
+    };
+    this.toJSON = function(){
+        return "<RauPage>" + key;
+    };
 }
 
 function authenticate(error, authData, provider, tryRedirect)
@@ -212,12 +215,12 @@ function authenticate(error, authData, provider, tryRedirect)
         }
         else
         {
-            log('e', "Login Failed!", error);
+            console.error("Login Failed!", error);
         }
     }
     else
     {
-        //log('l', "Authenticated successfully with payload:", authData);
+        console.log("Authenticated successfully with payload:", authData);
     }
 }
 
