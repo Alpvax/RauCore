@@ -2,11 +2,100 @@ var root = new Firebase('https://rau.firebaseio.com/');
 var runesRef = root.child("runes");
 var categoryPriorities = {};
 
-function load()
+var pages = {
+    /*login: new RauPage(function(){
+            $('#loginBtn').text("Log in with Google");
+        }, function(){
+            $('#loginBtn').text("Log out");
+        }),*/
+    runes: new RauPage('runes', {
+        setup: function()
+        {
+            runesRef.on("child_added", function(snap)
+            {
+                var val = snap.val();
+                function addRow(name, codePoint, category)
+                {
+                    $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint)), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
+                }
+                addRow(snap.key(), val.codePoint, val.category);
+                if(val.pillared)
+                {
+                    addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
+                }
+            });
+        },
+        close: function()
+        {
+            runesRef.off();
+        }
+    }),
+    dictionary: new RauPage('dictionary', {}),
+    messaging: new RauPage('messaging', {
+        setup: function()
+        {
+            var ref = root.child('messaging').child('broadcast');
+            $('#messageInput').keypress(function(e)
+            {
+                if(e.keyCode == 13)
+                {
+                    ref.push({user: root.getAuth().uid, text: $('#messageInput').val()});
+                    $('#messageInput').val('');
+                }
+            });
+            ref.on('child_added', function(snapshot)
+            {
+                var message = snapshot.val();
+                root.child('users').child(message.user).once('value', function(snap)
+                {
+                    displayChatMessage(snap.val().name, message.text);
+                });
+            });
+            function displayChatMessage(name, text)
+            {
+                $('#messageInput').before($('<div/>').text(text).prepend($('<em/>').text(name + ': ')));
+                $('#messagingScreen')[0].scrollTop = $('#messagingScreen')[0].scrollHeight;
+            };
+        },
+        close: function()
+        {
+            root.child('messaging').child('broadcast').off();
+        },
+        onShow: function()
+        {
+            $('#messageInput').focus();
+        }
+    })
+}
+
+$(document).ready(function()
 {
+    if(!(ALP_CONST.DEBUG & 2))
+    {
+        $('#debugLog').hide();
+    }
+    var last = "logout";
+    for(var page in pages)
+    {
+        pages[page].hide();
+        $('#' + last + 'Btn').after($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page[0].toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
+            {
+                for(var p in pages)
+                {
+                    if(p == e.data.page)
+                    {
+                        pages[p].show();
+                    }
+                    else
+                    {
+                        pages[p].hide();
+                    }
+                }
+            }));
+        last = page;
+    }
     root.onAuth(function(authData)
     {
-        auth = authData;
         if(authData)
         {
             // save the user's profile into the database so we can list users,
@@ -18,11 +107,19 @@ function load()
                 {
                     ref.set({
                         provider: authData.provider,
-                        name: prompt("Enter your name", authData.google.displayName) || authData.google.displayName,
+                        name: function(authData)
+                            {
+                                var n = authData[authData.provider].displayName;
+                                return prompt("Enter your name", n) || n;
+                            }(authData),
                         access: "basic"
                     });
-                    loginSetup();
                 }
+                for(var page in pages)
+                {
+                    pages[page].setup();
+                }
+                login();
             }, function(error)
             {
                 log("e", "%O", error);
@@ -30,13 +127,27 @@ function load()
         }
         else
         {
-            logoutSetup();
+            for(var page in pages)
+            {
+                pages[page].close();
+            }
+            logout();
         }
     });
-    if(!(ALP_CONST.DEBUG & 2))
+    $('#logoutBtn').on('click', function(e)
     {
-        $('#debugLog').hide();
-    }
+        e.preventDefault();
+        root.unauth();
+    });
+    $('.loginBtn').on('click', function(e)
+    {
+        e.preventDefault();
+        var provider = $(this).data('login-provider');
+        root.authWithOAuthPopup(provider, function(error, authData)
+        {
+            authenticate(error, authData, provider, true);
+        });
+    });
     if(root.getAuth())//If already logged in, load as though logging in
     {
         login();
@@ -45,83 +156,49 @@ function load()
     {
         logout();
     }
-    $('#loginBtn').click(function(e)
-    {
-        e.preventDefault();
-        if(root.getAuth())
-        {
-            root.unauth();
-        }
-        else
-        {
-            root.authWithOAuthPopup("google", function(error, authData)
-            {
-                authenticate(error, authData, true);
-            });
-        }
-    });
-}
-
-function loginSetup()
-{
-    runesRef.on("child_added", function(snap)
-    {
-        var val = snap.val();
-        function addRow(name, codePoint, category)
-        {
-            $('#runeTable tr:last').after($("<tr>").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint)), $("<td>").text(name), $("<td>").text(category), $("<td>").text(codePoint.toString(16).toUpperCase())));
-        }
-        addRow(snap.key(), val.codePoint, val.category);
-        if(val.pillared)
-        {
-            addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
-        }
-    });
-    login();
-}
-function logoutSetup()
-{
-    runesRef.off();
-    logout();
-}
+});
 
 function login()
 {
-    $('#loginBtn').text("Log out");
-    $('.login').hide();
+    $('.loginBtn').hide();
+    $('#logoutBtn').show();
     $('.pages').show();
-    $('.runes').show();
+    pages.runes.show();
 }
 function logout()
 {
-    $('#loginBtn').text("Log in with Google");
-    $('.login').show();
+    $('.loginBtn').show();
+    $('#logoutBtn').hide();
     $('.pages').hide();
-    $('.runes').hide();
-    $('.dictionary').hide();
-    $('.messaging').hide();
-}
-
-function getRuneNameFromIndex(index, category, callback)
-{
-    var query = runesRef.child(category).orderByPriority().endAt(index).limitToLast(1)
-    query.on("value", function(querySnapshot)
+    for(var page in pages)
     {
-        if(querySnapshot.numChildren() == 1)
-        {
-            querySnapshot.forEach(function(rune)
-            {
-                log('d', rune.key());
-                callback(runesRef.child(category).child(rune.key()));
-            });
-        }else
-        {
-            log('l', "No match");
-        }
-    });
+        pages[page].hide();
+    }
 }
 
-function authenticate(error, authData, tryRedirect)
+function RauPage(key, funcs)
+{
+    this.setup = funcs.setup || function(){};
+    this.close = funcs.close || function(){};
+    this.show = function(){
+            $('#' + key + 'Screen').show();
+            var f = funcs.onShow;
+            if(f)
+            {
+                f();
+            }
+    }
+    this.hide = function(){
+            $('#' + key + 'Screen').hide();
+            var f = funcs.onHide;
+            if(f)
+            {
+                f();
+            }
+    }
+}
+
+function authenticate(error, authData, provider, tryRedirect)
 {
     if(error)
     {
@@ -130,7 +207,7 @@ function authenticate(error, authData, tryRedirect)
             // fall-back to browser redirects, and pick up the session
             // automatically when we come back to the origin page
             // second call will not have the tryRedirect parameter, so a recursive loop will never occur
-            root.authWithOAuthRedirect("google", authenticate);
+            root.authWithOAuthRedirect(provider, authenticate);
         }
         else
         {
@@ -140,7 +217,6 @@ function authenticate(error, authData, tryRedirect)
     else
     {
         //log('l', "Authenticated successfully with payload:", authData);
-        //loginSetup();
     }
 }
 
@@ -150,7 +226,6 @@ function reSetRunes()
     {
         snap1.forEach(function(snap)
         {
-            log('d', "%s: %O", snap.key(), snap.val());
             categoryPriorities[snap.val()] = parseInt(snap.key(), 16);
         });
         addAllRunes();
@@ -167,7 +242,6 @@ function reSetRunes()
 
 function addRune(runeName, rune)
 {
-    log('d', "Priority for %s is: %i + %i", runeName, categoryPriorities[rune['category']], rune['index']);
     var i = (categoryPriorities[rune['category']] + rune['index']);
     var ref = runesRef.child(runeName)
     ref.setWithPriority(rune, i);

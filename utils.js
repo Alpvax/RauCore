@@ -139,7 +139,7 @@ function consoleFormat(format)
                 return parseFloat(arg);
             case "o":
             case "O":
-                console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
+                //TODO: log object coming through as string console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
                 return JSON.stringify(arg, null, "\t");
             case "c":
                 var id = "conLogSpan" + logSpanNo++;
