@@ -15,12 +15,16 @@
         <script src="utils.js"></script>
         <script src="rau.js"></script>
     </head>
-    <body onload="load()">
+    <body>
         <section class="page-header">
             <h1 class="project-name">Raucore</h1>
             <h2 class="project-tagline">Online version of the Dictionary</h2>
-            <a class="btn" id="loginBtn">Log in with Google</a>
-            <a class="btn pages" id="runesBtn">Runes</a>
+            <a class="btn loginBtn" data-login-provider="google">Log in with Google</a>
+            <a class="btn loginBtn" data-login-provider="facebook">Log in with Facebook</a>
+            <a class="btn loginBtn" data-login-provider="github">Log in with Github</a>
+            <a class="btn loginBtn" data-login-provider="twitter">Log in with Twitter</a>
+            <a class="btn" id="logoutBtn">Log out</a>
+            <!--<a class="btn pages" id="runesBtn">Runes</a>
             <a class="btn pages" id="dictionaryBtn">Dictionary</a>
             <!--<a class="btn pages" id="chatBtn">Log in with Google</a>-->
             <!--<a href="https://github.com/Alpvax/RauCore/zipball/master" class="btn">Download .zip</a>
@@ -28,13 +32,15 @@
         </section>
 
         <section class="main-content">
-            <div class="login" id="loginScreen">Log in to view</div>
-            <!--<div class="profile" id="profileScreen">
+            <!--<div id="loginScreen">Log in to view</div>
+            <div class="profile" id="profileScreen">
                 <input type='text' id='nameInput' placeholder='Name'>
             </div>-->
-            <div class="runes" id="runeScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Type</th><th>Unicode code point</th></tr></table></div>
-            <div class="dictionary" id="dictionaryScreen"></div>
-            <div class="messaging" id="messagingScreen"></div>
+            <div id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Type</th><th>Unicode code point</th></tr></table></div>
+            <div id="dictionaryScreen"></div>
+            <div id="messagingScreen">
+                <input type='text' id='messageInput' placeholder='Message'>
+            </div>
 
             <footer class="site-footer">
                 <span class="site-footer-owner"><a href="https://github.com/Alpvax/RauCore">Raucore</a> is maintained by <a href="https://github.com/Alpvax">Alpvax</a>.</span>
