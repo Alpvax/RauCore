@@ -46,7 +46,6 @@ var pages = {
             ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
-                console.debug(snapshot.key(), message);
                 var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr({"class": "messageComponentDate"}), $("<br>"));
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
@@ -145,6 +144,14 @@ $(document).ready(function()
         {
             authenticate(error, authData, provider, true);
         });
+    });
+    $('.messageInput').on('change', function(e)
+    {
+        console.debug("Changed:", $(this).text());
+        var h = parseInt($(this).css('lineHeight'),10);
+        var l = $(this).prop('scrollHeight') / h;
+        $(this).prop('rows', l);
+        console.log(l);
     });
     if(root.getAuth())//If already logged in, load as though logging in
     {
