@@ -58,27 +58,30 @@ var pages = {
                         msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
                     $("html, body").animate({scrollTop: $(msg).offset().top}, 0);
-                    if(window.Notification)
+                    if(root.getAuth().uid != message.user)//Don't notify yourself
                     {
-                        if(Notification.permission == 'granted')
+                        if(window.Notification)
                         {
-                            try
+                            if(Notification.permission == 'granted')
                             {
-                                var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
+                                try
+                                {
+                                    var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
+                                }
+                                catch(err)
+                                {
+                                    console.info("New message\n" + snap.val().name + ': ' + message.text);
+                                }
+                                /*navigator.serviceWorker.ready.then(function(registration)
+                                {
+                                    registration.showNotification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
+                                });*/
                             }
-                            catch(err)
-                            {
-                                alert("New message\n" + snap.val().name + ': ' + message.text);
-                            }
-                            /*navigator.serviceWorker.ready.then(function(registration)
-                            {
-                                registration.showNotification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
-                            });*/
                         }
-                    }
-                    else
-                    {
-                        alert("New message\n" + snap.val().name + ': ' + message.text);
+                        else
+                        {
+                            console.info("New message\n" + snap.val().name + ': ' + message.text);
+                        }
                     }
                 });
             });
