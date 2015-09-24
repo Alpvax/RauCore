@@ -62,7 +62,18 @@ var pages = {
                     {
                         if(Notification.permission == 'granted')
                         {
-                            var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text})
+                            try
+                            {
+                                var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
+                            }
+                            catch(err)
+                            {
+                                alert("New message\n" + snap.val().name + ': ' + message.text);
+                            }
+                            /*navigator.serviceWorker.ready.then(function(registration)
+                            {
+                                registration.showNotification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
+                            });*/
                         }
                     }
                     else
@@ -82,6 +93,13 @@ var pages = {
 
 $(document).ready(function()
 {
+    /*navigator.serviceWorker.register('rau.js', {scope: './'}).then(function(registration)
+    {
+        console.debug('succeeded registering');
+    }).catch(function(error)
+    {
+        console.debug('failed registering', error);
+    });*/
     if(window.Notification && Notification.permission != 'denied')
     {
         if(Notification.permission != 'granted')
