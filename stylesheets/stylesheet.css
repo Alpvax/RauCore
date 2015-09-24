@@ -28,13 +28,13 @@ body {
 }
 .message[data-message-type="s"] {
     /*background: rgba(253, 122, 90, 0.7);*/
-    border-radius: 20px 20px 20px 5px;
-    margin-right: 20%;
+    border-radius: 20px 20px 5px 20px;
+    margin-left: 20%;
 }
 .message[data-message-type="r"] {
     /*background: rgba(147, 186, 244, 0.7);*/
-    border-radius: 20px 20px 5px 20px;
-    margin-left: 20%;
+    border-radius: 20px 20px 20px 5px;
+    margin-right: 20%;
 }
 .messageComponentDate {
     font-size: 12px;
