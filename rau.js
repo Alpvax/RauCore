@@ -47,12 +47,18 @@ var pages = {
             {
                 var message = snapshot.val();
                 var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr({"class": "messageComponentDate"}), $("<br>"));
+                console.debug("Scrolling to new element");
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
                     msg.append($('<span>').text(snap.val().name + ': ').attr({"class": "messageComponentName"}), $('<span>').text(message.text).attr({"class": "messageComponentBody"}));
                     msg.attr({"class": "generatedData message", "data-message-type": root.getAuth().uid == message.user ? 's' : 'r'});
-                    $('#messagingScreen')[0].scrollTop = $('#messagingScreen')[0].scrollHeight;
+                    if(snap.child('colour').exists())
+                    {
+                        var c = snap.child('colour').val();
+                        msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
+                    }
+                    $("html, body").animate({scrollTop: $(msg).offset().top}, 0);
                 });
             });
         },
@@ -60,10 +66,6 @@ var pages = {
         {
             root.child('messaging').child('broadcast').orderByChild('time').off();
             $('#messageInput').off("keypress.postMessage");
-        },
-        onShow: function()
-        {
-            $('#messageInput').focus();
         }
     })
 }
@@ -101,6 +103,9 @@ $(document).ready(function()
             {
                 if(!snap.exists())
                 {
+                    var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                    var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                    var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
                     ref.set({
                         provider: authData.provider,
                         name: function(authData)
@@ -108,7 +113,8 @@ $(document).ready(function()
                                 var n = authData[authData.provider].displayName;
                                 return prompt("Enter your name", n) || n;
                             }(authData),
-                        access: "basic"
+                        access: "basic",
+                        colour: {r: r, g: g, b: b}
                     });
                 }
                 for(var page in pages)
@@ -145,14 +151,6 @@ $(document).ready(function()
             authenticate(error, authData, provider, true);
         });
     });
-    $('.messageInput').on('change', function(e)
-    {
-        console.debug("Changed:", $(this).text());
-        var h = parseInt($(this).css('lineHeight'),10);
-        var l = $(this).prop('scrollHeight') / h;
-        $(this).prop('rows', l);
-        console.log(l);
-    });
     if(root.getAuth())//If already logged in, load as though logging in
     {
         login();
@@ -169,6 +167,16 @@ function login()
     $('#logoutBtn').show();
     $('.pages').show();
     pages.messaging.show();
+    root.child('users').child(root.getAuth().uid).child('colour').once('value', function(snap)
+    {
+        if(!snap.exists())
+        {
+            var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+            var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+            var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+            snap.ref().set({r: r, g: g, b: b});
+        }
+    });
 }
 function logout()
 {
