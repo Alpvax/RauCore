@@ -46,12 +46,11 @@ var pages = {
             ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
-                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr({"class": "messageComponentDate"}), $("<br>"));
-                console.debug("Scrolling to new element");
+                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate"), $("<br>"));
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
-                    msg.append($('<span>').text(snap.val().name + ': ').attr({"class": "messageComponentName"}), $('<span>').text(message.text).attr({"class": "messageComponentBody"}));
+                    msg.append($('<span>').text(snap.val().name + ': ').attr("class", "messageComponentName"), $('<span>').text(message.text).attr("class", "messageComponentBody"));
                     msg.attr({"class": "generatedData message", "data-message-type": root.getAuth().uid == message.user ? 's' : 'r'});
                     if(snap.child('colour').exists())
                     {
@@ -59,6 +58,17 @@ var pages = {
                         msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
                     $("html, body").animate({scrollTop: $(msg).offset().top}, 0);
+                    if(window.Notification)
+                    {
+                        if(Notification.permission == 'granted')
+                        {
+                            var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text})
+                        }
+                    }
+                    else
+                    {
+                        alert("New message\n" + snap.val().name + ': ' + message.text);
+                    }
                 });
             });
         },
@@ -72,6 +82,19 @@ var pages = {
 
 $(document).ready(function()
 {
+    if(window.Notification && Notification.permission != 'denied')
+    {
+        if(Notification.permission != 'granted')
+        {
+            Notification.requestPermission(function(status)
+            {
+                if(Notification.permission !== status)
+                {
+                    Notification.permission = status;
+                }
+            });
+        }
+    }
     var last = "logout";
     for(var page in pages)
     {
@@ -167,16 +190,6 @@ function login()
     $('#logoutBtn').show();
     $('.pages').show();
     pages.messaging.show();
-    root.child('users').child(root.getAuth().uid).child('colour').once('value', function(snap)
-    {
-        if(!snap.exists())
-        {
-            var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-            var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-            var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-            snap.ref().set({r: r, g: g, b: b});
-        }
-    });
 }
 function logout()
 {
