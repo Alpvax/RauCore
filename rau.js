@@ -39,7 +39,14 @@ var pages = {
             {
                 if(e.keyCode == 13)
                 {
-                    ref.push({user: root.getAuth().uid, text: $('#messageInput').val(), time: Firebase.ServerValue.TIMESTAMP});
+                    var u = root.getAuth().uid;
+                    ref.push({
+                        user: u,
+                        text: $('#messageInput').val(),
+                        time: Firebase.ServerValue.TIMESTAMP,
+                        read: {
+                            [u]: true
+                        }});
                     $('#messageInput').val('');
                 }
             });
@@ -50,38 +57,19 @@ var pages = {
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
+                    var u = root.getAuth().uid;
                     msg.append($('<span>').text(snap.val().name + ': ').attr("class", "messageComponentName"), $('<span>').text(message.text).attr("class", "messageComponentBody"));
-                    msg.attr({"class": "generatedData message", "data-message-type": root.getAuth().uid == message.user ? 's' : 'r'});
+                    msg.attr({"class": "generatedData message", "data-message-type": u == message.user ? 's' : 'r'});
                     if(snap.child('colour').exists())
                     {
                         var c = snap.child('colour').val();
                         msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
                     $("html, body").animate({scrollTop: $(msg).offset().top}, 0);
-                    if(root.getAuth().uid != message.user)//Don't notify yourself
+                    if(!message.read[u])//Don't notify if you have already read it.
                     {
-                        if(window.Notification)
-                        {
-                            if(Notification.permission == 'granted')
-                            {
-                                try
-                                {
-                                    var n = new Notification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
-                                }
-                                catch(err)
-                                {
-                                    console.info("New message\n" + snap.val().name + ': ' + message.text);
-                                }
-                                /*navigator.serviceWorker.ready.then(function(registration)
-                                {
-                                    registration.showNotification("New rau message", {tag: 'rauMsg', body: snap.val().name + ': ' + message.text});
-                                });*/
-                            }
-                        }
-                        else
-                        {
-                            console.info("New message\n" + snap.val().name + ': ' + message.text);
-                        }
+                        sendNotification(snap.val().name, message.text);
+                        snapshot.ref().child('read').update({[u]: true});
                     }
                 });
             });
@@ -267,6 +255,32 @@ function authenticate(error, authData, provider, tryRedirect)
     else
     {
         //console.log("Authenticated successfully with payload:", authData);
+    }
+}
+
+function sendNotification(name, text)
+{
+    if(window.Notification)
+    {
+        if(Notification.permission == 'granted')
+        {
+            try
+            {
+                var n = new Notification("New rau message", {tag: 'rauMsg', body: name + ': ' + text});
+            }
+            catch(err)
+            {
+                console.info("New message\n" + name + ': ' + text);
+            }
+            /*navigator.serviceWorker.ready.then(function(registration)
+            {
+                registration.showNotification("New rau message", {tag: 'rauMsg', body: name + ': ' + text});
+            });*/
+        }
+    }
+    else
+    {
+        console.info("New message\n" + name + ': ' + text);
     }
 }
 
