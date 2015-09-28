@@ -16,7 +16,7 @@ var pages = {
                 var val = snap.val();
                 function addRow(name, codePoint, category)
                 {
-                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune-" + name).text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
+                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune_" + name.replace(" ", "_")).text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
                 }
                 addRow(snap.key(), val.codePoint, val.category);
                 if(val.pillared)
@@ -43,12 +43,21 @@ var pages = {
                     ref.push({
                         user: u,
                         text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
-                        {
-                            return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
-                        }).replace(/(\\?){rau[:=]?\s*([a-z]+)}/ig, function(match, preSlash, key)//enable typing names of runes
-                        {
-                            return preSlash == "\\" ? match.substr(1) : $('#rune-' + key.toLowerCase()).text();
-                        }),
+                            {
+                                return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
+                            }).replace(/(\\?){rau[:=]?\s*((p(illared)?[_\- ])?([a-z]+))}/ig, function(match, preSlash, arg, pillared, fullPillared, key)//enable typing names of runes
+                            {
+                                if(preSlash)
+                                {
+                                    return match.substr(1);
+                                }
+                                if(pillared)
+                                {
+                                    key = "pillared_" + key;
+                                }
+                                var rune = $('#rune_' + key.toLowerCase()).text();
+                                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+                            }),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
                             [u]: true
