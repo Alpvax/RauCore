@@ -16,7 +16,7 @@ var pages = {
                 var val = snap.val();
                 function addRow(name, codePoint, category)
                 {
-                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>')/*.attr("class", "rauText")*/.text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
+                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune-" + name).text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
                 }
                 addRow(snap.key(), val.codePoint, val.category);
                 if(val.pillared)
@@ -42,9 +42,12 @@ var pages = {
                     var u = root.getAuth().uid;
                     ref.push({
                         user: u,
-                        text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)
+                        text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
                         {
-                            return preSlash == "\\" ? "\\u" + hex : String.fromCharCode(parseInt(hex, 16));
+                            return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
+                        }).replace(/(\\?){rau[:=]?\s*([a-z]+)}/ig, function(match, preSlash, key)//enable typing names of runes
+                        {
+                            return preSlash == "\\" ? match.substr(1) : $('#rune-' + key.toLowerCase()).text();
                         }),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
