@@ -14,14 +14,14 @@ var pages = {
             runesRef.on("child_added", function(snap)
             {
                 var val = snap.val();
-                function addRow(name, codePoint, category)
+                function addRow(name, codePoint, category, latin)
                 {
-                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune_" + name.replace(" ", "_")).text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
+                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune_" + name.replace(" ", "_")).text(String.fromCharCode(codePoint)), $('<td>').attr("id", "rune_name_" + (latin != undefined ? latin : codePoint)).text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : "")));
                 }
-                addRow(snap.key(), val.codePoint, val.category);
+                addRow(snap.key(), val.codePoint, val.category, val.latin);
                 if(val.pillared)
                 {
-                    addRow("pillared " + snap.key(), val.codePoint + 1, val.category);
+                    addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined);
                 }
             });
         },
@@ -51,7 +51,15 @@ var pages = {
                             }
                             return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
                             {
-                                if(pillared)
+                                if(key.length == 1)
+                                {
+                                    if(pillared)
+                                    {
+                                        key = key.toUpperCase();
+                                    }
+                                    key = $('#rune_name_' + key).text().replace(" ", "_");
+                                }
+                                else if(pillared)
                                 {
                                     key = "pillared_" + key;
                                 }
