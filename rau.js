@@ -42,25 +42,26 @@ var pages = {
                     var u = root.getAuth().uid;
                     ref.push({
                         user: u,
-                        text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
+                        text: $(this).val().replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
+                        .replace(/(\\?){rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)}/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
+                        {
+                            if(preSlash)
                             {
-                                return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
-                            }).replace(/(\\?){rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)}/ig, function(match, preSlash, runes)
+                                return match.substr(1);
+                            }
+                            return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
                             {
-                                if(preSlash)
+                                if(pillared)
                                 {
-                                    return match.substr(1);
+                                    key = "pillared_" + key;
                                 }
-                                return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
-                                {
-                                    if(pillared)
-                                    {
-                                        key = "pillared_" + key;
-                                    }
-                                    var rune = $('#rune_' + key.toLowerCase()).text();
-                                    return rune ? rune : "{NO RUNE FOUND: " + key + "}";
-                                });
-                            }),
+                                var rune = $('#rune_' + key.toLowerCase()).text();
+                                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+                            });
+                        }).replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
+                        {
+                            return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
+                        }),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
                             [u]: true
