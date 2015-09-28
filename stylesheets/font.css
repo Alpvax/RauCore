@@ -10,5 +10,15 @@
          url('../font/rau-utf-webfont.svg#rauregular') format('svg');
     font-weight: normal;
     font-style: normal;
-
+}
+@font-face {
+    font-family: 'rau';
+    src: url('../font/rau-utf-webfont.eot');
+    src: url('../font/rau-utf-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../font/rau-utf-webfont.woff2') format('woff2'),
+         url('../font/rau-utf-webfont.woff') format('woff'),
+         url('../font/rau-utf-webfont.ttf') format('truetype'),
+         url('../font/rau-utf-webfont.svg#rauregular') format('svg');
+    font-weight: bold;
+    font-style: normal;
 }
