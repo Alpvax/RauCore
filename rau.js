@@ -37,7 +37,7 @@ var pages = {
             var ref = root.child('messaging').child('broadcast');
             $('#messageInput').on("keypress.postMessage", function(e)
             {
-                if(e.keyCode == 13)
+                if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
                 {
                     var u = root.getAuth().uid;
                     ref.push({
@@ -48,6 +48,7 @@ var pages = {
                             [u]: true
                         }});
                     $('#messageInput').val('');
+                    e.preventDefault();
                 }
             });
             ref.orderByChild('time').on('child_added', function(snapshot)
