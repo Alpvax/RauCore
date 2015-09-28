@@ -45,18 +45,21 @@ var pages = {
                         text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
                             {
                                 return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
-                            }).replace(/(\\?){rau[:=]?\s*((p(illared)?[_\- ])?([a-z]+))}/ig, function(match, preSlash, arg, pillared, fullPillared, key)//enable typing names of runes
+                            }).replace(/(\\?){rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)}/ig, function(match, preSlash, runes)
                             {
                                 if(preSlash)
                                 {
                                     return match.substr(1);
                                 }
-                                if(pillared)
+                                return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
                                 {
-                                    key = "pillared_" + key;
-                                }
-                                var rune = $('#rune_' + key.toLowerCase()).text();
-                                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+                                    if(pillared)
+                                    {
+                                        key = "pillared_" + key;
+                                    }
+                                    var rune = $('#rune_' + key.toLowerCase()).text();
+                                    return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+                                });
                             }),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
