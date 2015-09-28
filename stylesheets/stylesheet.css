@@ -27,11 +27,11 @@ body {
     margin: 10px 0px;
 }
 .message[data-message-type="s"] {
-    border-radius: 20px 20px 5px 20px;
+    border-radius: 10px 10px 2px 10px;
     margin-left: 20%;
 }
 .message[data-message-type="r"] {
-    border-radius: 20px 20px 20px 5px;
+    border-radius: 10px 10px 10px 2px;
     margin-right: 20%;
 }
 .messageComponentDate {
