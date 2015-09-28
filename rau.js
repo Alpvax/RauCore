@@ -53,7 +53,7 @@ var pages = {
             ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
-                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate"), $("<br>"));
+                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate"));//, $("<br>"));
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
