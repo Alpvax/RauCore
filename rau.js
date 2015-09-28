@@ -16,7 +16,7 @@ var pages = {
                 var val = snap.val();
                 function addRow(name, codePoint, category)
                 {
-                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("class", "rauText").text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
+                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>')/*.attr("class", "rauText")*/.text(String.fromCharCode(codePoint)), $('<td>').text(name), $('<td>').text(category), $('<td>').text(codePoint.toString(16).toUpperCase())));
                 }
                 addRow(snap.key(), val.codePoint, val.category);
                 if(val.pillared)
