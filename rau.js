@@ -43,7 +43,7 @@ var pages = {
                     ref.push({
                         user: u,
                         text: $(this).val().replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
-                        .replace(/(\\?){rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)}/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
+                        .replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
                         {
                             if(preSlash)
                             {
@@ -58,7 +58,7 @@ var pages = {
                                 var rune = $('#rune_' + key.toLowerCase()).text();
                                 return rune ? rune : "{NO RUNE FOUND: " + key + "}";
                             });
-                        }).replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input
+                        }).replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input, done last to convert escaped \ (\u5c) back to a single \ once it will no longer be part of any sequences
                         {
                             return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
                         }),
