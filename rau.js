@@ -42,12 +42,15 @@ var pages = {
                     var u = root.getAuth().uid;
                     ref.push({
                         user: u,
-                        text: $('#messageInput').val(),
+                        text: $(this).val().replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)
+                        {
+                            return preSlash == "\\" ? "\\u" + hex : String.fromCharCode(parseInt(hex, 16));
+                        }),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
                             [u]: true
                         }});
-                    $('#messageInput').val('');
+                    $(this).val('');
                     e.preventDefault();
                 }
             });
