@@ -42,34 +42,7 @@ var pages = {
                     var u = root.getAuth().uid;
                     ref.push({
                         user: u,
-                        text: $(this).val().replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
-                        .replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
-                        {
-                            if(preSlash)
-                            {
-                                return match.substr(1);
-                            }
-                            return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
-                            {
-                                if(key.length == 1)
-                                {
-                                    if(pillared)
-                                    {
-                                        key = key.toUpperCase();
-                                    }
-                                    key = $('#rune_name_' + key).text().replace(" ", "_");
-                                }
-                                else if(pillared)
-                                {
-                                    key = "pillared_" + key;
-                                }
-                                var rune = $('#rune_' + key.toLowerCase()).text();
-                                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
-                            });
-                        }).replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input, done last to convert escaped \ (\u5c) back to a single \ once it will no longer be part of any sequences
-                        {
-                            return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
-                        }),
+                        text: formatText($(this).val()),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
                             [u]: true
@@ -86,7 +59,7 @@ var pages = {
                 root.child('users').child(message.user).once('value', function(snap)
                 {
                     var u = root.getAuth().uid;
-                    msg.append($('<span>').text(snap.val().name + ': ').attr("class", "messageComponentName"), $('<span>').text(message.text).attr("class", "messageComponentBody"));
+                    msg.prepend($('<span>').text(snap.val().name).attr("class", "messageComponentName")).append($('<span>').text(message.text).attr("class", "messageComponentBody"));
                     msg.attr({"class": "generatedData message", "data-message-type": u == message.user ? 's' : 'r'});
                     if(snap.child('colour').exists())
                     {
@@ -106,6 +79,54 @@ var pages = {
         {
             root.child('messaging').child('broadcast').orderByChild('time').off();
             $('#messageInput').off("keypress.postMessage");
+        }
+    }),
+    settings: new RauPage('settings', {
+        setup: function()
+        {
+            var ref = root.child('users').child(root.getAuth().uid);
+            $('#userName').on('change.submit', function(e)
+            {
+                if($(this).val())
+                {
+                    ref.update({name: formatText($(this).val())});
+                }
+            });
+            $('#userColour').on('change.submit', function(e)
+            {
+                $(this).val().replace(/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/, function(match, r, g, b)
+                {
+                    ref.child('colour').update({r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16)});
+                });
+            });
+            function setColour(r, g, b)
+            {
+                $('#userColour').val("#" + r.toString(16) + g.toString(16) + b.toString(16));
+            }
+            ref.on('child_changed', function(snap, prevChildKey)
+            {
+                if(snap.key() == 'name')
+                {
+                    $('#userName').val(snap.val());
+                }
+                if(snap.key() == 'colour')
+                {
+                    var c = snap.val();
+                    setColour(c.r, c.g, c.b);
+                }
+            });
+            ref.once('value', function(snap)
+            {
+                var val = snap.val();
+                $('#userName').val(val.name);
+                setColour(val.colour.r, val.colour.g, val.colour.b);
+            })
+        },
+        close: function()
+        {
+            root.child('users').child(root.getAuth().uid).off();
+            $('#userName').off("change.postMessage");
+            $('#userColour').off("change.postMessage");
         }
     })
 }
@@ -262,6 +283,38 @@ function RauPage(key, funcs)
     this.toJSON = function(){
         return "<RauPage>" + key;
     };
+}
+
+function formatText(text)
+{
+    return text.replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
+        .replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
+        {
+            if(preSlash)
+            {
+                return match.substr(1);
+            }
+            return runes.replace(/(p(?:illared)?[_\- ]|\|)?([a-z]+)[,; ]*/ig, function(subMatch, pillared, key)
+            {
+                if(key.length == 1)
+                {
+                    if(pillared)
+                    {
+                        key = key.toUpperCase();
+                    }
+                    key = $('#rune_name_' + key).text().replace(" ", "_");
+                }
+                else if(pillared)
+                {
+                    key = "pillared_" + key;
+                }
+                var rune = $('#rune_' + key.toLowerCase()).text();
+                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+            });
+        }).replace(/(\\?)\\u([0-9a-fA-F]+)/g, function(match, preSlash, hex)//enable unicode input, done last to convert escaped \ (\u5c) back to a single \ once it will no longer be part of any sequences
+        {
+            return preSlash == "\\" ? match.substr(1) : String.fromCharCode(parseInt(hex, 16));
+        });
 }
 
 function authenticate(error, authData, provider, tryRedirect)
