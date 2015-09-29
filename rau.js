@@ -66,7 +66,12 @@ var pages = {
                         var c = snap.child('colour').val();
                         msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
-                    $("html, body").animate({scrollTop: $(msg).offset().top}, 0);
+                    //var scroll = $('#messageInput').offset().top + $('#messageInput').height() - $(window).height();
+                    var scroll = $('footer').offset().top - $(window).height();
+                    if(scroll > 0)
+                    {
+                        $("html, body").animate({scrollTop: scroll}, 0);
+                    }
                     if(!message.read[u])//Don't notify if you have already read it.
                     {
                         sendNotification(snap.val().name, message.text);
@@ -288,7 +293,18 @@ function RauPage(key, funcs)
 function formatText(text)
 {
     return text.replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
-        .replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
+        .replace(/(\\?)[{\(]lrau[:=]?\s*(.+?)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input with single letters
+        {
+            if(preSlash)
+            {
+                return match.substr(1);
+            }
+            return runes.replace(/[^ ]/g, function(key)
+            {
+                var rune = $('#rune_' + $('#rune_name_' + key).text().replace(" ", "_")).text();
+                return rune ? rune : "{NO RUNE FOUND: " + key + "}";
+            });
+        }).replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
         {
             if(preSlash)
             {
