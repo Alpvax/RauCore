@@ -45,7 +45,6 @@ body {
 }
 .messageComponentName {
     width: 50%;
-    font-style: italic;
     font-weight: bold;
     float: left;
 }
