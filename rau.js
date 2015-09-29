@@ -1,6 +1,7 @@
 var root = new Firebase('https://rau.firebaseio.com/');
 var runesRef = root.child("runes");
 var categoryPriorities = {};
+var currentUser = null;
 
 var pages = {
     /*login: new RauPage(function(){
@@ -39,13 +40,12 @@ var pages = {
             {
                 if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
                 {
-                    var u = root.getAuth().uid;
                     ref.push({
-                        user: u,
+                        user: currentUser,
                         text: formatText($(this).val()),
                         time: Firebase.ServerValue.TIMESTAMP,
                         read: {
-                            [u]: true
+                            [currentUser]: true
                         }});
                     $(this).val('');
                     e.preventDefault();
@@ -58,9 +58,8 @@ var pages = {
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
-                    var u = root.getAuth().uid;
                     msg.prepend($('<span>').text(snap.val().name).attr("class", "messageComponentName")).append($('<span>').text(message.text).attr("class", "messageComponentBody"));
-                    msg.attr({"class": "generatedData message", "data-message-type": u == message.user ? 's' : 'r'});
+                    msg.attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
                     if(snap.child('colour').exists())
                     {
                         var c = snap.child('colour').val();
@@ -72,10 +71,10 @@ var pages = {
                     {
                         $("html, body").animate({scrollTop: scroll}, 0);
                     }
-                    if(!message.read[u])//Don't notify if you have already read it.
+                    if(!message.read[currentUser])//Don't notify if you have already read it.
                     {
                         sendNotification(snap.val().name, message.text);
-                        snapshot.ref().child('read').update({[u]: true});
+                        snapshot.ref().child('read').update({[currentUser]: true});
                     }
                 });
             });
@@ -89,7 +88,7 @@ var pages = {
     settings: new RauPage('settings', {
         setup: function()
         {
-            var ref = root.child('users').child(root.getAuth().uid);
+            var ref = root.child('users').child(currentUser);
             $('#userName').on('change.submit', function(e)
             {
                 if($(this).val())
@@ -129,7 +128,7 @@ var pages = {
         },
         close: function()
         {
-            root.child('users').child(root.getAuth().uid).off();
+            root.child('users').child(currentUser).off();
             $('#userName').off("change.postMessage");
             $('#userColour').off("change.postMessage");
         }
@@ -158,11 +157,11 @@ $(document).ready(function()
             });
         }
     }
-    var last = "logout";
+    var header = $('section.page-header');
     for(var page in pages)
     {
         pages[page].hide();
-        $('#' + last + 'Btn').after($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
+        header.append($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
             {
                 for(var p in pages)
                 {
@@ -176,12 +175,12 @@ $(document).ready(function()
                     }
                 }
             }));
-        last = page;
     }
     root.onAuth(function(authData)
     {
         if(authData)
         {
+            currentUser = authData.uid;
             // save the user's profile into the database so we can list users,
             // use them in Security and Firebase Rules, and show profiles
             var ref = root.child("users").child(authData.uid);
@@ -215,11 +214,15 @@ $(document).ready(function()
         }
         else
         {
-            for(var page in pages)
+            if(currentUser)
             {
-                pages[page].close();
+                currentUser = null;
+                for(var page in pages)
+                {
+                    pages[page].close();
+                }
+                $('.generatedData').remove();
             }
-            $('.generatedData').remove();
             logout();
         }
     });
@@ -288,6 +291,7 @@ function RauPage(key, funcs)
     this.toJSON = function(){
         return "<RauPage>" + key;
     };
+    this.data = {};
 }
 
 function formatText(text)
