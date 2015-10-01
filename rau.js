@@ -33,8 +33,20 @@ var pages = {
     }),
     dictionary: new RauPage('dictionary', {}),
     messaging: new RauPage('messaging', {
+        init: function()
+        {
+            this.scrollMessages = function(time)
+            {
+                var scroll = $('footer').offset().top - $(window).height();
+                if(scroll > 0)
+                {
+                    $("html, body").animate({scrollTop: scroll}, time != undefined ? time : 250);
+                }
+            };
+        },
         setup: function()
         {
+            var msgRauPage = this;
             var ref = root.child('messaging').child('broadcast');
             $('#messageInput').on("keypress.postMessage", function(e)
             {
@@ -65,12 +77,7 @@ var pages = {
                         var c = snap.child('colour').val();
                         msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
-                    //var scroll = $('#messageInput').offset().top + $('#messageInput').height() - $(window).height();
-                    var scroll = $('footer').offset().top - $(window).height();
-                    if(scroll > 0)
-                    {
-                        $("html, body").animate({scrollTop: scroll}, 0);
-                    }
+                    msgRauPage.scrollMessages(0);
                     if(!message.read[currentUser])//Don't notify if you have already read it.
                     {
                         sendNotification(snap.val().name, message.text);
@@ -83,6 +90,11 @@ var pages = {
         {
             root.child('messaging').child('broadcast').orderByChild('time').off();
             $('#messageInput').off("keypress.postMessage");
+        },
+        onShow: function()
+        {
+            this.scrollMessages();
+            $('#messageInput').focus();
         }
     }),
     settings: new RauPage('settings', {
@@ -270,28 +282,29 @@ function logout()
 
 function RauPage(key, funcs)
 {
-    this.setup = funcs.setup || function(){};
-    this.close = funcs.close || function(){};
+    if(funcs.init)
+    {
+        funcs.init.call(this);
+    }
+    this.setup = funcs.setup ? funcs.setup.bind(this) : function(){};
+    this.close = funcs.close ? funcs.close.bind(this) : function(){};
     this.show = function(){
-            $('#' + key + 'Screen').show();
-            var f = funcs.onShow;
-            if(f)
-            {
-                f();
-            }
+        $('#' + key + 'Screen').show();
+        if(funcs.onShow)
+        {
+            funcs.onShow.call(this);
+        }
     };
     this.hide = function(){
-            $('#' + key + 'Screen').hide();
-            var f = funcs.onHide;
-            if(f)
-            {
-                f();
-            }
+        $('#' + key + 'Screen').hide();
+        if(funcs.onHide)
+        {
+            funcs.onHide.call(this);
+        }
     };
     this.toJSON = function(){
         return "<RauPage>" + key;
     };
-    this.data = {};
 }
 
 function formatText(text)
