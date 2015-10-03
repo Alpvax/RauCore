@@ -47,12 +47,12 @@ body {
     text-align: right;
 }
 .messageComponentName {
-    width: 50%;
+    padding: 0px 5px;
     font-weight: bold;
     float: left;
 }
 .messageComponentBody {
-    padding: 0px 7px;
+    padding: 0px 5px;
     display: block;
     clear: both;
 }
