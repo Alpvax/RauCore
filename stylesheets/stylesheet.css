@@ -7,7 +7,9 @@ body {
   font-family: 'rau', "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #606c71; }
+  color: #606c71;
+  background: #f0f0f0;
+}
   
 .windowConsole {
     padding: 0px 10px;
@@ -26,7 +28,7 @@ body {
     padding: 0px 5px;
     margin: 10px 0px;
     border-radius: 10px;
-    box-shadow: 3px 3px 3px 3px #888888;
+    box-shadow: 1px 3px 3px 3px #888888;
 }
 .message[data-message-type="s"] {
     border-bottom-right-radius: 2px;
