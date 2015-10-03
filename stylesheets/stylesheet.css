@@ -28,7 +28,7 @@ body {
     padding: 0px 5px;
     margin: 10px 0px;
     border-radius: 10px;
-    box-shadow: 1px 3px 3px 3px #888888;
+    box-shadow: 0.5px 1px 1px 1px #aaaaaa;
     background: #ffffff;
 }
 .message[data-message-type="s"] {
