@@ -63,19 +63,25 @@ var pages = {
                     e.preventDefault();
                 }
             });
+            root.child('users').on('child_changed', function(snap)
+            {
+                var val = snap.val();
+                $('messageComponentName[data-message-author="' + snap.key() + '"]').text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
+            });
             ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
-                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate"));//, $("<br>"));
+                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate")).attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
                 $('#messageInput').before(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
-                    msg.prepend($('<span>').text(snap.val().name).attr("class", "messageComponentName")).append($('<span>').text(message.text).attr("class", "messageComponentBody"));
-                    msg.attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
+                    var author = $('<span>').text(snap.val().name).attr({"class": "messageComponentName", "data-message-author": message.user});
+                    msg.prepend(author).append($('<span>').text(message.text).attr("class", "messageComponentBody"));
                     if(snap.child('colour').exists())
                     {
                         var c = snap.child('colour').val();
-                        msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
+                        author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
+                        //msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
                     msgRauPage.scrollMessages(0);
                     if(!message.read[currentUser])//Don't notify if you have already read it.
