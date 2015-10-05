@@ -16,18 +16,10 @@
     </head>
     <body>
         <section class="page-header">
-            <h1 class="project-name">Raucore</h1>
-            <h2 class="project-tagline">Online version of the Dictionary</h2>
-            <a class="btn loginBtn" data-login-provider="google">Log in with Google</a>
-            <a class="btn loginBtn" data-login-provider="facebook">Log in with Facebook</a>
-            <a class="btn loginBtn" data-login-provider="github">Log in with Github</a>
-            <a class="btn loginBtn" data-login-provider="twitter">Log in with Twitter</a>
-            <!--<a class="btn" id="logoutBtn">Log out</a>-->
-            <!--<a class="btn pages" id="runesBtn">Runes</a>
-            <a class="btn pages" id="dictionaryBtn">Dictionary</a>
-            <!--<a class="btn pages" id="chatBtn">Log in with Google</a>-->
-            <!--<a href="https://github.com/Alpvax/RauCore/zipball/master" class="btn">Download .zip</a>
-            <a href="https://github.com/Alpvax/RauCore/tarball/master" class="btn">Download .tar.gz</a>-->
+            <a class="btn loginBtn" data-login-provider="google">Google</a>
+            <a class="btn loginBtn" data-login-provider="facebook">Facebook</a>
+            <a class="btn loginBtn" data-login-provider="github">Github</a>
+            <a class="btn loginBtn" data-login-provider="twitter">Twitter</a>
         </section>
 
         <section class="main-content">
@@ -38,7 +30,7 @@
             <div class="page" id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></div>
             <div class="page" id="dictionaryScreen"></div>
             <div class="page" id="messagingScreen">
-                <div id="messageList"></div>
+                <div class="messageList" data-conversation="broadcast"></div>
                 <textarea id="messageInput" placeholder="Message" rows=3 autofocus></textarea>
             </div>
             <div class="page" id="settingsScreen">

@@ -4,7 +4,7 @@ var currentUser = null;
 var currentPage = null;
 
 var pages = {
-    runes: new RauPage('runes', {
+    runes: new RauPage('runes', "\uE100", {
         setup: function()
         {
             root.child('runes').on("child_added", function(snap)
@@ -26,8 +26,8 @@ var pages = {
             root.child('runes').off();
         }
     }),
-    dictionary: new RauPage('dictionary', {}),
-    messaging: new RauPage('messaging', {
+    dictionary: new RauPage('dictionary', "\uE00E", {}),
+    messaging: new RauPage('messaging', "\uE006", {
         init: function()
         {
             this.scrollMessages = function(time)
@@ -42,6 +42,7 @@ var pages = {
         setup: function()
         {
             var msgRauPage = this;
+            var conversationGroup = "broadcast";//TODO
             var ref = root.child('messaging').child('broadcast');
             $('#messageInput').on("keypress.postMessage", function(e)
             {
@@ -67,7 +68,7 @@ var pages = {
             {
                 var message = snapshot.val();
                 var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate")).attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
-                $('#messageList').append(msg);
+                $('.messageList[data-conversation="' + conversationGroup + '"]').append(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
                     var author = $('<span>').text(snap.val().name).attr({"class": "messageComponentName", "data-message-author": message.user});
@@ -98,7 +99,7 @@ var pages = {
             $('#messageInput').focus();
         }
     }),
-    settings: new RauPage('settings', {
+    settings: new RauPage('settings', "\uE01E", {
         setup: function()
         {
             $('#userName').on('change.submit', function(e)
@@ -160,7 +161,7 @@ $(document).ready(function()
     var header = $('section.page-header');
     for(var page in pages)
     {
-        header.append($('<a>').attr({'class': 'btn pageBtn', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
+        header.append($('<a>').attr({'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).on('click', {page: page}, function(e)
             {
                 pages[e.data.page].show();
             }));
@@ -200,6 +201,7 @@ function login()
     $('#logoutBtn').show();
     $('.pageBtn').show();
     pages.messaging.show();
+    //pages.dictionary.show();
 }
 function logout()
 {
@@ -209,9 +211,10 @@ function logout()
     pages[currentPage].hide();
 }
 
-function RauPage(key, funcs)
+function RauPage(key, label, funcs)
 {
     this.key = key;
+    this.label = label;
     if(funcs.init)
     {
         funcs.init.call(this);
