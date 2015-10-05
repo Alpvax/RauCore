@@ -58,6 +58,10 @@ body {
     clear: both;
 }
 
+.page {
+    display: none;
+}
+
 a {
   color: #1e6bb8;
   text-decoration: none; }
