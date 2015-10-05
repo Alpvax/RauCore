@@ -35,12 +35,13 @@
             <div class="profile" id="profileScreen">
                 <input type='text' id='nameInput' placeholder='Name'>
             </div>-->
-            <div id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></div>
-            <div id="dictionaryScreen"></div>
-            <div id="messagingScreen">
+            <div class="page" id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></div>
+            <div class="page" id="dictionaryScreen"></div>
+            <div class="page" id="messagingScreen">
+                <div id="messageList"></div>
                 <textarea id="messageInput" placeholder="Message" rows=3 autofocus></textarea>
             </div>
-            <div id="settingsScreen">
+            <div class="page" id="settingsScreen">
                 Name: <input type="text" id="userName"><br>
                 Message colour: <input type="color" id="userColour"><br>
                 <button id="logoutBtn">Log out</button>

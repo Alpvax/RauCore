@@ -1,18 +1,13 @@
 var root = new Firebase('https://rau.firebaseio.com/');
-var runesRef = root.child("runes");
 var categoryPriorities = {};
 var currentUser = null;
+var currentPage = null;
 
 var pages = {
-    /*login: new RauPage(function(){
-            $('#loginBtn').text("Log in with Google");
-        }, function(){
-            $('#loginBtn').text("Log out");
-        }),*/
     runes: new RauPage('runes', {
         setup: function()
         {
-            runesRef.on("child_added", function(snap)
+            root.child('runes').on("child_added", function(snap)
             {
                 var val = snap.val();
                 function addRow(name, codePoint, category, latin)
@@ -28,7 +23,7 @@ var pages = {
         },
         close: function()
         {
-            runesRef.off();
+            root.child('runes').off();
         }
     }),
     dictionary: new RauPage('dictionary', {}),
@@ -66,13 +61,13 @@ var pages = {
             root.child('users').on('child_changed', function(snap)
             {
                 var val = snap.val();
-                $('messageComponentName[data-message-author="' + snap.key() + '"]').text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
+                $('.messageComponentName[data-message-author="' + snap.key() + '"]').text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
             });
             ref.orderByChild('time').on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
                 var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate")).attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
-                $('#messageInput').before(msg);
+                $('#messageList').append(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
                     var author = $('<span>').text(snap.val().name).attr({"class": "messageComponentName", "data-message-author": message.user});
@@ -106,7 +101,6 @@ var pages = {
     settings: new RauPage('settings', {
         setup: function()
         {
-            var ref = root.child('users').child(currentUser);
             $('#userName').on('change.submit', function(e)
             {
                 if($(this).val())
@@ -114,17 +108,14 @@ var pages = {
                     ref.update({name: formatText($(this).val())});
                 }
             });
-            $('#userColour').on('change.submit', function(e)
+            $('#userColour').on('change', function(e)
             {
                 $(this).val().replace(/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/, function(match, r, g, b)
                 {
                     ref.child('colour').update({r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16)});
                 });
             });
-            function setColour(r, g, b)
-            {
-                $('#userColour').val("#" + r.toString(16) + g.toString(16) + b.toString(16));
-            }
+            var ref = root.child('users').child(currentUser);
             ref.on('child_changed', function(snap, prevChildKey)
             {
                 if(snap.key() == 'name')
@@ -134,116 +125,59 @@ var pages = {
                 if(snap.key() == 'colour')
                 {
                     var c = snap.val();
-                    setColour(c.r, c.g, c.b);
+                    $('#userColour').val(rgbToHtml(c));
                 }
             });
             ref.once('value', function(snap)
             {
                 var val = snap.val();
                 $('#userName').val(val.name);
-                setColour(val.colour.r, val.colour.g, val.colour.b);
+                $('#userColour').val(rgbToHtml(val.colour));
             })
         },
         close: function()
         {
             root.child('users').child(currentUser).off();
-            $('#userName').off("change.postMessage");
-            $('#userColour').off("change.postMessage");
+            $('#userName').off('change.submit');
+            $('#userColour').off('change.submit');
         }
     })
 }
 
 $(document).ready(function()
 {
-    /*navigator.serviceWorker.register('rau.js', {scope: './'}).then(function(registration)
+    setupConstantEvents();
+    if(window.Notification && Notification.permission != 'denied' && Notification.permission != 'granted')
     {
-        console.debug('succeeded registering');
-    }).catch(function(error)
-    {
-        console.debug('failed registering', error);
-    });*/
-    if(window.Notification && Notification.permission != 'denied')
-    {
-        if(Notification.permission != 'granted')
+        Notification.requestPermission(function(status)
         {
-            Notification.requestPermission(function(status)
+            if(Notification.permission !== status)
             {
-                if(Notification.permission !== status)
-                {
-                    Notification.permission = status;
-                }
-            });
-        }
+                Notification.permission = status;
+            }
+        });
     }
     var header = $('section.page-header');
     for(var page in pages)
     {
-        pages[page].hide();
-        header.append($('<a>').attr({'class': 'btn pages', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
+        header.append($('<a>').attr({'class': 'btn pageBtn', id: page + 'Btn'}).text(page.charAt(0).toUpperCase() + page.substr(1)).on('click', {page: page}, function(e)
             {
-                for(var p in pages)
-                {
-                    if(p == e.data.page)
-                    {
-                        pages[p].show();
-                    }
-                    else
-                    {
-                        pages[p].hide();
-                    }
-                }
+                pages[e.data.page].show();
             }));
     }
-    root.onAuth(function(authData)
+    root.onAuth(loginChanged);
+    if(root.getAuth())//If already logged in, load as though logging in
     {
-        if(authData)
-        {
-            currentUser = authData.uid;
-            // save the user's profile into the database so we can list users,
-            // use them in Security and Firebase Rules, and show profiles
-            var ref = root.child("users").child(authData.uid);
-            ref.once("value", function(snap)
-            {
-                if(!snap.exists())
-                {
-                    var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                    var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                    var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                    ref.set({
-                        provider: authData.provider,
-                        name: function(authData)
-                            {
-                                var n = authData[authData.provider].displayName;
-                                return prompt("Enter your name", n) || n;
-                            }(authData),
-                        access: "basic",
-                        colour: {r: r, g: g, b: b}
-                    });
-                }
-                for(var page in pages)
-                {
-                    pages[page].setup();
-                }
-                login();
-            }, function(error)
-            {
-                console.error("Error logging in", error);
-            });
-        }
-        else
-        {
-            if(currentUser)
-            {
-                currentUser = null;
-                for(var page in pages)
-                {
-                    pages[page].close();
-                }
-                $('.generatedData').remove();
-            }
-            logout();
-        }
-    });
+        login();
+    }
+    else
+    {
+        logout();
+    }
+});
+
+function setupConstantEvents()
+{
     $('#logoutBtn').on('click', function(e)
     {
         e.preventDefault();
@@ -258,36 +192,26 @@ $(document).ready(function()
             authenticate(error, authData, provider, true);
         });
     });
-    if(root.getAuth())//If already logged in, load as though logging in
-    {
-        login();
-    }
-    else
-    {
-        logout();
-    }
-});
+}
 
 function login()
 {
     $('.loginBtn').hide();
     $('#logoutBtn').show();
-    $('.pages').show();
+    $('.pageBtn').show();
     pages.messaging.show();
 }
 function logout()
 {
-    $('.loginBtn').show();
     $('#logoutBtn').hide();
-    $('.pages').hide();
-    for(var page in pages)
-    {
-        pages[page].hide();
-    }
+    $('.pageBtn').hide();
+    $('.loginBtn').show();
+    pages[currentPage].hide();
 }
 
 function RauPage(key, funcs)
 {
+    this.key = key;
     if(funcs.init)
     {
         funcs.init.call(this);
@@ -295,6 +219,11 @@ function RauPage(key, funcs)
     this.setup = funcs.setup ? funcs.setup.bind(this) : function(){};
     this.close = funcs.close ? funcs.close.bind(this) : function(){};
     this.show = function(){
+        if(currentPage != null)
+        {
+            pages[currentPage].hide();
+        }
+        currentPage = this.key;
         $('#' + key + 'Screen').show();
         if(funcs.onShow)
         {
@@ -302,6 +231,7 @@ function RauPage(key, funcs)
         }
     };
     this.hide = function(){
+        currentPage = null;
         $('#' + key + 'Screen').hide();
         if(funcs.onHide)
         {
@@ -378,6 +308,55 @@ function authenticate(error, authData, provider, tryRedirect)
     }
 }
 
+function loginChanged(authData)
+{
+    if(authData)
+    {
+        currentUser = authData.uid;
+        // save the user's profile into the database so we can list users,
+        // use them in Security and Firebase Rules, and show profiles
+        var ref = root.child("users").child(authData.uid);
+        ref.once("value", function(snap)
+        {
+            if(!snap.exists())
+            {
+                //TODO better colour generation
+                var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                ref.set({
+                    provider: authData.provider,
+                    name: function(authData)
+                        {
+                            var n = authData[authData.provider].displayName;
+                            return prompt("Enter your name", n) || n;
+                        }(authData),
+                    access: "basic",
+                    colour: {r: r, g: g, b: b}
+                });
+            }
+            for(var page in pages)
+            {
+                pages[page].setup();
+            }
+            login();
+        });
+    }
+    else
+    {
+        if(currentUser)
+        {
+            for(var page in pages)
+            {
+                pages[page].close();
+            }
+            $('.generatedData').remove();
+            currentUser = null;
+        }
+        logout();
+    }
+}
+
 function sendNotification(name, text)
 {
     if(window.Notification)
@@ -401,84 +380,5 @@ function sendNotification(name, text)
     else
     {
         console.info("New message\n" + name + ': ' + text);
-    }
-}
-
-function reSetRunes()
-{
-    root.child('fontData/sections').once('value', function(snap1)
-    {
-        snap1.forEach(function(snap)
-        {
-            categoryPriorities[snap.val()] = parseInt(snap.key(), 16);
-        });
-        addAllRunes();
-    });
-    
-    root.child("accessLevels").once("value", function(snap)
-    {
-        snap.forEach(function(level)
-        {
-            root.child('accessLevels').child(level.key()).setPriority(level.val());
-        });
-    });
-}
-
-function addRune(runeName, rune)
-{
-    var i = (categoryPriorities[rune['category']] + rune['index']);
-    var ref = runesRef.child(runeName)
-    ref.setWithPriority(rune, i);
-    ref.update({codePoint: i});
-}
-
-function addAllRunes()
-{
-    var runel = JSON.parse('{"ee": {"category": "letters", "pillared": true, "index": 0},'+
-                            '"harr": {"category": "letters", "pillared": true, "index": 2},'+
-                            '"korr": {"category": "letters", "pillared": true, "index": 4},'+
-                            '"meh": {"category": "letters", "pillared": true, "index": 6},'+
-                            '"sjuh": {"category": "letters", "pillared": true, "index": 8},'+
-                            '"ja": {"category": "letters", "pillared": true, "index": 10},'+
-                            '"chair": {"category": "letters", "pillared": true, "index": 12},'+
-                            '"orr": {"category": "letters", "pillared": true, "index": 14},'+
-                            '"leugh": {"category": "letters", "pillared": true, "index": 16},'+
-                            '"varr": {"category": "letters", "pillared": true, "index": 18},'+
-                            '"thorr": {"category": "letters", "pillared": true, "index": 20},'+
-                            '"na": {"category": "letters", "pillared": true, "index": 22},'+
-                            '"bair": {"category": "letters", "pillared": true, "index": 24},'+
-                            '"duh": {"category": "letters", "pillared": true, "index": 26},'+
-                            '"arr": {"category": "letters", "pillared": true, "index": 28},'+
-                            '"so": {"category": "letters", "pillared": true, "index": 30},'+
-                            '"torr": {"category": "letters", "pillared": true, "index": 32},'+
-                            '"pair": {"category": "letters", "pillared": true, "index": 34},'+
-                            '"eugh": {"category": "letters", "pillared": true, "index": 36},'+
-                            '"go": {"category": "letters", "pillared": true, "index": 38},'+
-                            '"ckhorr": {"category": "letters", "pillared": true, "index": 40},'+
-                            '"djarr": {"category": "letters", "pillared": true, "index": 42},'+
-                            '"roo": {"category": "letters", "pillared": true, "index": 44},'+
-                            '"air": {"category": "letters", "pillared": true, "index": 46},'+
-                            '"fee": {"category": "letters", "pillared": true, "index": 48},'+
-                            '"eye": {"category": "letters", "index": 50},'+
-                            '"oo": {"category": "letters", "index": 51},'+
-                            '"atz": {"category": "numbers", "index": 0},'+
-                            '"ohs": {"category": "numbers", "index": 1},'+
-                            '"sjem": {"category": "numbers", "index": 2},'+
-                            '"ohnoh": {"category": "numbers", "index": 3},'+
-                            '"neve": {"category": "numbers", "index": 4},'+
-                            '"fee-oh": {"category": "numbers", "index": 5},'+
-                            '"tuvoh": {"category": "numbers", "index": 6},'+
-                            '"este": {"category": "numbers", "index": 7},'+
-                            '"elma": {"category": "numbers", "index": 8},'+
-                            '"alnu": {"category": "numbers", "index": 9},'+
-                            '"rau": {"category": "other", "index": 0},'+
-                            '"ran": {"category": "other", "index": 1},'+
-                            '"rull": {"category": "other", "index": 2},'+
-                            '"rochk": {"category": "other", "index": 3},'+
-                            '"vee": {"category": "other", "index": 4},'+
-                            '"den": {"category": "other", "index": 5}}');
-    for(var rune in runel)
-    {
-        addRune(rune, runel[rune]);
     }
 }

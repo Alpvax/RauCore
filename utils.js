@@ -13,10 +13,6 @@ if(stPage && stPage[0])
 {
     ALP_CONST.START_PAGE = stPage[1]
 }*/
-//Prevent use of cached scripts
-/*var r = Date.now();
-document.getElementById("zedFunctions").src = "functions.js?" + r;
-document.getElementById("zedCanvas").src = "canvas.js?" + r;*/
 //Fallback for when google CDN is inaccessible. Assumes also unable to get JQuery mobile
 if(typeof $ == "undefined")
 {
@@ -126,39 +122,13 @@ $(document).ready(function()
     }
 });
 
-/*var logSpanNo = 0;
-function consoleFormat(format)
+function rgbToHtml(r, g, b)
 {
-    var index = 0;
-    var styled = false;
-    var args = arguments;
-    return format.replace(/%([sdifoOc])/g, function(match, type)
+    if(r.r != undefined)//r is an object with properties rgb
     {
-        var arg = typeof args[++index] != 'undefined' ? args[index] : match;
-        switch(type)
-        {
-            case "s":
-                return "" + arg;
-            case "d":
-            case "i":
-                return parseInt(arg);
-            case "f":
-                return parseFloat(arg);
-            case "o":
-            case "O":
-                console.warn("%O: %s", arg, JSON.stringify(arg, null, "\t"));//XXX
-                return JSON.stringify(arg, null, "\t");
-            case "c":
-                var id = "conLogSpan" + logSpanNo++;
-                var x = document.getElementById("conLogStyles") || (function(){
-                                                                        var x = document.createElement("style");
-                                                                        document.head.appendChild(x);
-                                                                        return x;
-                                                                    }());
-                var t = document.createTextNode("#" + id + "{" + arg + "}");
-                x.appendChild(t);
-                styled = true;
-                return "<span id=\"" + id + "\">";
-        }
-    }) + (styled ? "</span>" : "");
-}*/
+        b = r.b;
+        g = r.g;
+        r = r.r;//Set r last
+    }
+    return "#" + ("0" + r.toString(16)).substr(-2) + ("0" + g.toString(16)).substr(-2) + ("0" + b.toString(16)).substr(-2);
+}
