@@ -249,7 +249,7 @@ function RauPage(key, label, funcs)
 function formatText(text)
 {
     return text.replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
-        .replace(/(\\?)[{\(]lrau[:=]?\s*(.+?)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input with single letters
+        .replace(/(\\?)[{\(]rau[:=]?\s*(.+?)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input with single letters
         {
             if(preSlash)
             {
@@ -260,7 +260,7 @@ function formatText(text)
                 var rune = $('#rune_' + $('#rune_name_' + key).text().replace(" ", "_")).text();
                 return rune ? rune : "{NO RUNE FOUND: " + key + "}";
             });
-        }).replace(/(\\?)[{\(]rau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
+        }).replace(/(\\?)[{\(]nrau[:=]?\s*(((p(?:illared)?[_\- ]|\|)?([a-z]+))([,; ]+((p(?:illared)?[_\- ]|\|)?([a-z]+)))*)[}\)]/ig, function(match, preSlash, runes)//Enable {rau: r1,r2...rn} input
         {
             if(preSlash)
             {
