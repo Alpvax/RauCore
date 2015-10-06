@@ -12,7 +12,7 @@ var pages = {
                 var val = snap.val();
                 function addRow(name, codePoint, category, latin)
                 {
-                    $('#runeTable tr:last').after($('<tr>').attr("class", "generatedData").append($('<td>').attr("id", "rune_" + name.replace(" ", "_")).text(String.fromCharCode(codePoint)), $('<td>').attr("id", "rune_name_" + (latin != undefined ? latin : codePoint)).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
+                    $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
                 }
                 addRow(snap.key(), val.codePoint, val.category, val.latin);
                 if(val.pillared)
@@ -62,22 +62,25 @@ var pages = {
             root.child('users').on('child_changed', function(snap)
             {
                 var val = snap.val();
-                $('.messageComponentName[data-message-author="' + snap.key() + '"]').text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
+                $('.messageComponentName').filter(function()
+                {
+                    return $(this).data("msgAuthor") == snap.key();
+                }).text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
             });
-            ref.orderByChild('time').on('child_added', function(snapshot)
+            var today = new DateDayHelper();
+            ref.orderByChild('time').startAt(today.modifyDays(-3).getTime()).on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
-                var msg = $('<div>').prepend($('<span>').text(new Date(message.time).toLocaleString("en-GB")).attr("class", "messageComponentDate")).attr({"class": "generatedData message", "data-message-type": currentUser == message.user ? 's' : 'r'});
+                var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(currentUser == message.user ? 'sent' : 'recieved');
                 $('.messageList[data-conversation="' + conversationGroup + '"]').append(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
-                    var author = $('<span>').text(snap.val().name).attr({"class": "messageComponentName", "data-message-author": message.user});
-                    msg.prepend(author).append($('<span>').text(message.text).attr("class", "messageComponentBody"));
+                    var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);
+                    msg.prepend(author).append($('<span>', {"class": "messageComponentBody"}).text(message.text));
                     if(snap.child('colour').exists())
                     {
                         var c = snap.child('colour').val();
                         author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
-                        //msg.css("background-color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                     }
                     msgRauPage.scrollMessages(0);
                     if(!message.read[currentUser])//Don't notify if you have already read it.
@@ -161,7 +164,7 @@ $(document).ready(function()
     var header = $('section.page-header');
     for(var page in pages)
     {
-        header.append($('<a>').attr({'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).on('click', {page: page}, function(e)
+        header.append($('<a>', {'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).on('click', {page: page}, function(e)
             {
                 pages[e.data.page].show();
             }));
