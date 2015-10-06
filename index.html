@@ -15,21 +15,16 @@
         <script src="rau.js"></script>
     </head>
     <body>
-        <section class="page-header">
+        <nav class="page-header">
             <a class="btn loginBtn" data-login-provider="google">Google</a>
             <a class="btn loginBtn" data-login-provider="facebook">Facebook</a>
             <a class="btn loginBtn" data-login-provider="github">Github</a>
             <a class="btn loginBtn" data-login-provider="twitter">Twitter</a>
-        </section>
-
+        </nav>
         <section class="main-content">
-            <!--<div id="loginScreen">Log in to view</div>
-            <div class="profile" id="profileScreen">
-                <input type='text' id='nameInput' placeholder='Name'>
-            </div>-->
-            <div class="page" id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></div>
-            <div class="page" id="dictionaryScreen"></div>
-            <div class="page" id="messagingScreen">
+            <section class="page" id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></section>
+            <section class="page" id="dictionaryScreen"></section>
+            <section class="page" id="messagingScreen">
                 <div id="messageHeader">
                     <select id="conversationSelect">
                         <option value="broadcast">All-Chat</option>
@@ -38,24 +33,20 @@
                 </div>
                 <div class="messageList" data-conversation="broadcast"></div>
                 <textarea id="messageInput" placeholder="Message" rows=3 autofocus></textarea>
-            </div>
-            <div class="page" id="settingsScreen">
-                Name: <input type="text" id="userName"><br>
-                Message colour: <input type="color" id="userColour"><br>
+            </section>
+            <section class="page" id="settingsScreen">
+                Name: <input type="text" id="userName"></input><br>
+                Message colour: <input type="color" id="userColour"></input><br>
                 <button id="logoutBtn">Log out</button>
-            </div>
+            </section>
 
             <footer class="site-footer">
                 <span class="site-footer-owner">This site is maintained by <a href="https://github.com/Alpvax"></a>.</span>
             </footer>
-
-            <br>
-            <div class="windowConsole">Console:</div>
-            <div class="windowConsole" data-console-type="ewild"></div>
-
         </section>
-
-
+        
+        <div class="windowConsole"><br>Console:</div>
+        <div class="windowConsole" data-console-type="ewild"></div>
     </body>
 </html>
 
