@@ -33,11 +33,11 @@ body {
     box-shadow: 0.5px 1px 1px 1px #aaaaaa;
     background: #ffffff;
 }
-.message[data-message-type="s"] {
+.message.sent {
     border-bottom-right-radius: 2px;
     margin-left: 20%;
 }
-.message[data-message-type="r"] {
+.message.recieved {
     border-bottom-left-radius: 2px;
     margin-right: 20%;
 }
@@ -62,7 +62,7 @@ body {
 
 .page {
     position: relative;
-    top: 3rem;
+    top: 2rem;
     display: none;
 }
 

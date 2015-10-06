@@ -132,3 +132,18 @@ function rgbToHtml(r, g, b)
     }
     return "#" + ("0" + r.toString(16)).substr(-2) + ("0" + g.toString(16)).substr(-2) + ("0" + b.toString(16)).substr(-2);
 }
+
+function DateDayHelper(date, keepDayTime)
+{
+    this.date = date || new Date();
+    this.modifyDays = function(days)
+    {
+        var d = this.date;
+        var args = [null, d.getFullYear(), d.getMonth(), d.getDate() + (days ? days : 0)];//null as first term for instantiation
+        if(keepDayTime)
+        {
+            Array.prototype.push.apply(args, [d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds()]);
+        }
+        return new (Function.prototype.bind.apply(Date, args));
+    };
+}
