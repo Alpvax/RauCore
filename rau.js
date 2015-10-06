@@ -42,13 +42,16 @@ var pages = {
         setup: function()
         {
             var msgRauPage = this;
-            var conversationGroup = "broadcast";//TODO
-            var ref = root.child('messaging').child('broadcast');
+            this.messageRef = root.child('messaging');
+            this.userQuery = root.child('users/' + currentUser + "/conversations").orderByValue();
+            this.conversationGroup = "broadcast";
+            this.conversationRef = this.messageRef.child(this.conversationGroup);
+            this.loadedConversations = ["broadcast"];
             $('#messageInput').on("keypress.postMessage", function(e)
             {
                 if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
                 {
-                    ref.push({
+                    msgRauPage.conversationRef.push({
                         user: currentUser,
                         text: formatText($(this).val()),
                         time: Firebase.ServerValue.TIMESTAMP,
@@ -59,6 +62,32 @@ var pages = {
                     e.preventDefault();
                 }
             });
+            $('#conversationSelect').on('change', function(e)
+            {
+                var val = $(this).val();
+                if(!val)//New conversation
+                {
+                    val = "broadcast";//TODO:create conversation
+                    $(this).val(val);
+                }
+                msgRauPage.conversationGroup = val;
+                msgRauPage.conversationRef = msgRauPage.messageRef.child(val === "broadcast" ? "broadcast" : "conversations/" + val);
+                
+            });
+            this.userQuery.on('child_added', function(snap)
+            {
+                var key = snap.key();
+                var val = snap.val();
+                msgRauPage.loadedConversations.push(key);
+                $('#conversationSelect option').each(function()
+                {
+                    if($(this).text() > val)
+                    {
+                        $(this).before($('<option>', {"class": "generatedData", value: key}).text(val));
+                    }
+                });
+                //TODO:Continue
+            });
             root.child('users').on('child_changed', function(snap)
             {
                 var val = snap.val();
@@ -68,11 +97,11 @@ var pages = {
                 }).text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
             });
             var today = new DateDayHelper();
-            ref.orderByChild('time').startAt(today.modifyDays(-3).getTime()).on('child_added', function(snapshot)
+            this.conversationRef.orderByChild('time').startAt(today.modifyDays(-3).getTime()).on('child_added', function(snapshot)
             {
                 var message = snapshot.val();
                 var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(currentUser == message.user ? 'sent' : 'recieved');
-                $('.messageList[data-conversation="' + conversationGroup + '"]').append(msg);
+                $('.messageList[data-conversation="' + msgRauPage.conversationGroup + '"]').append(msg);
                 root.child('users').child(message.user).once('value', function(snap)
                 {
                     var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);

@@ -30,6 +30,12 @@
             <div class="page" id="runesScreen"><table id="runeTable"><tr><th>Rune</th><th>Name</th><th>Unicode code point</th><th>Latin input character</th><th>Category</th></tr></table></div>
             <div class="page" id="dictionaryScreen"></div>
             <div class="page" id="messagingScreen">
+                <div id="messageHeader">
+                    <select id="conversationSelect">
+                        <option value="broadcast">All-Chat</option>
+                        <option value="">New</option>
+                    </select>
+                </div>
                 <div class="messageList" data-conversation="broadcast"></div>
                 <textarea id="messageInput" placeholder="Message" rows=3 autofocus></textarea>
             </div>
