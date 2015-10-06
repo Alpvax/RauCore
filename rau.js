@@ -30,25 +30,74 @@ var pages = {
     messaging: new RauPage('messaging', "\uE006", {
         init: function()
         {
-            this.scrollMessages = function(time)
+            var msgRauPage = this;
+            this.scrollMessages = function(time, messageList)
             {
-                var scroll = $('footer').offset().top - $(window).height();
+                var f = $('footer');
+                var scroll = f.offset().top + f.outerHeight(true) - $(window).height();
                 if(scroll > 0)
                 {
-                    $("html, body").animate({scrollTop: scroll}, time != undefined ? time : 250);
+                    $('html, body')/*messageList*/.animate({scrollTop: scroll}, time != undefined ? time : 250);
                 }
+            };
+            this.addMessageToPage = function(snapshot)
+            {
+                var page = snapshot.ref().parent().key();
+                var message = snapshot.val();
+                var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(currentUser == message.user ? 'sent' : 'recieved');
+                var list = $('.messageList').filter(function()
+                {
+                    return $(this).data("conversation") == page;
+                }).append(msg);
+                root.child('users').child(message.user).once('value', function(snap)
+                {
+                    var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);
+                    msg.prepend(author).append($('<span>', {"class": "messageComponentBody"}).text(message.text));
+                    if(snap.child('colour').exists())
+                    {
+                        var c = snap.child('colour').val();
+                        author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
+                    }
+                    if(list.is(':visible'))
+                    {
+                        msgRauPage.scrollMessages(0, list);
+                    }
+                    if(!message.read[currentUser])//Don't notify if you have already read it.
+                    {
+                        sendNotification(snap.val().name, message.text);
+                        snapshot.ref().child('read').update({[currentUser]: true});
+                    }
+                });
+            };
+            this.showList = function(identifier)
+            {
+                if(identifier)
+                {
+                    $('.messageList').filter(function()
+                    {
+                        return $(this).data("conversation") == msgRauPage.currentList;
+                    }).hide();
+                    this.currentList = identifier;
+                }
+                $('.messageList').filter(function()
+                {
+                    return $(this).data("conversation") == msgRauPage.currentList;
+                }).show();
+                msgRauPage.show();
             };
         },
         setup: function()
         {
             var msgRauPage = this;
-            var conversationGroup = "broadcast";//TODO
-            var ref = root.child('messaging').child('broadcast');
+            var recentMessagesTime = new DateDayHelper().modifyDays(-3).getTime();
+            this.messageRef = root.child('messaging');
+            this.userQuery = root.child('users/' + currentUser + "/conversations").orderByValue();
+            this.currentList = "broadcast";
             $('#messageInput').on("keypress.postMessage", function(e)
             {
                 if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
                 {
-                    ref.push({
+                    msgRauPage.messageRef.child(msgRauPage.currentList).push({
                         user: currentUser,
                         text: formatText($(this).val()),
                         time: Firebase.ServerValue.TIMESTAMP,
@@ -59,7 +108,17 @@ var pages = {
                     e.preventDefault();
                 }
             });
-            root.child('users').on('child_changed', function(snap)
+            $('#conversationSelect').on('change', function(e)
+            {
+                var val = $(this).val();
+                if(!val)//New conversation
+                {
+                    val = "broadcast";//TODO:create conversation
+                    $(this).val(val);
+                }
+                msgRauPage.showList(val);
+            });
+            root.child('users').on('child_changed', function(snap)//Handle updating user names when they are changed (Including colour)
             {
                 var val = snap.val();
                 $('.messageComponentName').filter(function()
@@ -67,33 +126,30 @@ var pages = {
                     return $(this).data("msgAuthor") == snap.key();
                 }).text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
             });
-            var today = new DateDayHelper();
-            ref.orderByChild('time').startAt(today.modifyDays(-3).getTime()).on('child_added', function(snapshot)
+            this.userQuery.on('child_added', function(snap)
             {
-                var message = snapshot.val();
-                var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(currentUser == message.user ? 'sent' : 'recieved');
-                $('.messageList[data-conversation="' + conversationGroup + '"]').append(msg);
-                root.child('users').child(message.user).once('value', function(snap)
+                var key = snap.key();
+                var val = snap.val();
+                $('#conversationSelect option').each(function()
                 {
-                    var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);
-                    msg.prepend(author).append($('<span>', {"class": "messageComponentBody"}).text(message.text));
-                    if(snap.child('colour').exists())
+                    if($(this).text() > val)
                     {
-                        var c = snap.child('colour').val();
-                        author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
-                    }
-                    msgRauPage.scrollMessages(0);
-                    if(!message.read[currentUser])//Don't notify if you have already read it.
-                    {
-                        sendNotification(snap.val().name, message.text);
-                        snapshot.ref().child('read').update({[currentUser]: true});
+                        $(this).before($('<option>', {"class": "generatedData", value: key}).text(val));
                     }
                 });
+                $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
+                msgRauPage.messageRef.child(key).orderByChild('time').startAt(recentMessagesTime).on('child_added', msgRauPage.addMessageToPage);
             });
+            msgRauPage.messageRef.child(this.currentList).orderByChild('time').startAt(recentMessagesTime).on('child_added', this.addMessageToPage);
+            this.showList();
         },
         close: function()
         {
-            root.child('messaging').child('broadcast').orderByChild('time').off();
+            this.messageRef.child('broadcast').orderByChild('time').startAt(recentMessagesTime).off();
+            $('#conversationSelect option').each(function()
+            {
+                msgRauPage.messageRef.child($(this).val()).orderByChild('time').startAt(recentMessagesTime).off();
+            });
             $('#messageInput').off("keypress.postMessage");
         },
         onShow: function()
@@ -161,7 +217,7 @@ $(document).ready(function()
             }
         });
     }
-    var header = $('section.page-header');
+    var header = $('nav.page-header');
     for(var page in pages)
     {
         header.append($('<a>', {'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).on('click', {page: page}, function(e)
