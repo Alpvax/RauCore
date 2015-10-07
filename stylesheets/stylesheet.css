@@ -49,7 +49,7 @@ html, body {
     margin-left: 20%;
 }
 .message.recieved {
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
     margin-right: 20%;
 }
 .messageComponentDate {
