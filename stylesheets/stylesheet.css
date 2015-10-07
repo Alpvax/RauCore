@@ -29,6 +29,7 @@ html, body {
 
 #messageInput {
     width: 100%;
+    resize: vertical;
 }
 
 .messageList {
@@ -36,6 +37,12 @@ html, body {
     /*max-height: 100%;
     overflow-y: auto;*/
 }
+.messageList.selected {
+    display: initial;
+}
+/*.messageList[data-conversation="broadcast"] {
+    display: initial;
+}*/
 
 .message {
     padding: 0px 5px;
@@ -54,7 +61,7 @@ html, body {
 }
 .messageComponentDate {
     font-size: 0.74em;
-    color: #202020;
+    color: #999999;
     padding-right: 7px;
     padding-top: 5px;
     line-height: 0.8;

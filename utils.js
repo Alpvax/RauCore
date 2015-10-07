@@ -133,6 +133,24 @@ function rgbToHtml(r, g, b)
     return "#" + ("0" + r.toString(16)).substr(-2) + ("0" + g.toString(16)).substr(-2) + ("0" + b.toString(16)).substr(-2);
 }
 
+function firebaseAuthenticate(ref, provider, callback)//Callback should accept error, authData
+{
+    root.authWithOAuthPopup(provider, function(error, authData)
+    {
+        if(error && ref && error.code === "TRANSPORT_UNAVAILABLE")
+        {
+            // fall-back to browser redirects, and pick up the session
+            // automatically when we come back to the origin page
+            // second call will not have the tryRedirect parameter, so a recursive loop will never occur
+            ref.authWithOAuthRedirect(provider, callback);
+        }
+        else
+        {
+            callback(error, authData);
+        }
+    });
+}
+
 function DateDayHelper(date, keepDayTime)
 {
     this.date = date || new Date();

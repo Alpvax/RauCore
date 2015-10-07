@@ -1,212 +1,83 @@
 var root = new Firebase('https://rau.firebaseio.com/');
-var categoryPriorities = {};
-var currentUser = null;
-var currentPage = null;
+
+var RAU_settings = {
+    currentPage: "messaging",//Start page
+    currentPage: "messaging",//Start page
+    messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime(),//past 3 days and today (total 4 days)
+    currentConversation: "broadcast"
+};
 
 var pages = {
-    runes: new RauPage('runes', "\uE100", {
-        setup: function()
-        {
-            root.child('runes').on("child_added", function(snap)
-            {
-                var val = snap.val();
-                function addRow(name, codePoint, category, latin)
-                {
-                    $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
-                }
-                addRow(snap.key(), val.codePoint, val.category, val.latin);
-                if(val.pillared)
-                {
-                    addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined);
-                }
-            });
-        },
-        close: function()
-        {
-            root.child('runes').off();
-        }
-    }),
+    runes: new RauPage('runes', "\uE100", {}),
     dictionary: new RauPage('dictionary', "\uE00E", {}),
     messaging: new RauPage('messaging', "\uE006", {
-        init: function()
+        scrollMessages: function(time, messageList)
         {
-            var msgRauPage = this;
-            this.scrollMessages = function(time, messageList)
+            var f = $('footer');
+            var scroll = f.offset().top + f.outerHeight(true) - $(window).height();
+            if(scroll > 0)
             {
-                var f = $('footer');
-                var scroll = f.offset().top + f.outerHeight(true) - $(window).height();
-                if(scroll > 0)
+                $('html, body')/*messageList*/.animate({scrollTop: scroll}, time != undefined ? time : 250);
+            }
+        },
+        addMessageToPage: function(snapshot)
+        {
+            var page = snapshot.ref().parent().key();
+            var message = snapshot.val();
+            var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(message.user == root.getAuth().uid ? 'sent' : 'recieved');
+            var list = $('.messageList').filter(function()
+            {
+                return $(this).data("conversation") == page;
+            }).append(msg);
+            root.child('users').child(message.user).once('value', function(snap)//Get username and colour
+            {
+                var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);
+                msg.prepend(author).append($('<span>', {"class": "messageComponentBody"}).text(message.text));
+                if(snap.child('colour').exists())
                 {
-                    $('html, body')/*messageList*/.animate({scrollTop: scroll}, time != undefined ? time : 250);
+                    var c = snap.child('colour').val();
+                    author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
                 }
-            };
-            this.addMessageToPage = function(snapshot)
-            {
-                var page = snapshot.ref().parent().key();
-                var message = snapshot.val();
-                var msg = $('<div>', {"class": "generatedData message"}).prepend($('<span>', {"class": "messageComponentDate"}).text(new Date(message.time).toLocaleString("en-GB"))).addClass(currentUser == message.user ? 'sent' : 'recieved');
-                var list = $('.messageList').filter(function()
+                if(list.hasClass('selected'))
                 {
-                    return $(this).data("conversation") == page;
-                }).append(msg);
-                root.child('users').child(message.user).once('value', function(snap)
-                {
-                    var author = $('<span>', {"class": "messageComponentName"}).text(snap.val().name).data("msgAuthor", message.user);
-                    msg.prepend(author).append($('<span>', {"class": "messageComponentBody"}).text(message.text));
-                    if(snap.child('colour').exists())
-                    {
-                        var c = snap.child('colour').val();
-                        author.css("color", "rgb(" + c.r + ", " + c.g + ", " + c.b + ")");
-                    }
-                    if(list.is(':visible'))
-                    {
-                        msgRauPage.scrollMessages(0, list);
-                    }
-                    if(!message.read[currentUser])//Don't notify if you have already read it.
-                    {
-                        sendNotification(snap.val().name, message.text);
-                        snapshot.ref().child('read').update({[currentUser]: true});
-                    }
-                });
-            };
-            this.showList = function(identifier)
-            {
-                if(identifier)
-                {
-                    $('.messageList').filter(function()
-                    {
-                        return $(this).data("conversation") == msgRauPage.currentList;
-                    }).hide();
-                    this.currentList = identifier;
+                    pages.messaging.scrollMessages(0, list);
                 }
+                if(!message.read[root.getAuth().uid])//Don't notify if you have already read it.
+                {
+                    sendNotification(snap.val().name, message.text);
+                    snapshot.ref().child('read').update({[root.getAuth().uid]: true});
+                }
+            });
+        },
+        showList: function(identifier)
+        {
+            if(identifier)
+            {
                 $('.messageList').filter(function()
                 {
-                    return $(this).data("conversation") == msgRauPage.currentList;
-                }).show();
-                msgRauPage.show();
-            };
-        },
-        setup: function()
-        {
-            var msgRauPage = this;
-            var recentMessagesTime = new DateDayHelper().modifyDays(-3).getTime();
-            this.messageRef = root.child('messaging');
-            this.userQuery = root.child('users/' + currentUser + "/conversations").orderByValue();
-            this.currentList = "broadcast";
-            $('#messageInput').on("keypress.postMessage", function(e)
+                    return $(this).data("conversation") == pages.messaging.currentList;
+                }).removeClass("selected");
+                this.currentList = identifier;
+            }
+            $('.messageList').filter(function()
             {
-                if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
-                {
-                    msgRauPage.messageRef.child(msgRauPage.currentList).push({
-                        user: currentUser,
-                        text: formatText($(this).val()),
-                        time: Firebase.ServerValue.TIMESTAMP,
-                        read: {
-                            [currentUser]: true
-                        }});
-                    $(this).val('');
-                    e.preventDefault();
-                }
-            });
-            $('#conversationSelect').on('change', function(e)
-            {
-                var val = $(this).val();
-                if(!val)//New conversation
-                {
-                    val = "broadcast";//TODO:create conversation
-                    $(this).val(val);
-                }
-                msgRauPage.showList(val);
-            });
-            root.child('users').on('child_changed', function(snap)//Handle updating user names when they are changed (Including colour)
-            {
-                var val = snap.val();
-                $('.messageComponentName').filter(function()
-                {
-                    return $(this).data("msgAuthor") == snap.key();
-                }).text(val.name).css("color", "rgb(" + val.colour.r + ", " + val.colour.g + ", " + val.colour.b + ")");
-            });
-            this.userQuery.on('child_added', function(snap)
-            {
-                var key = snap.key();
-                var val = snap.val();
-                $('#conversationSelect option').each(function()
-                {
-                    if($(this).text() > val)
-                    {
-                        $(this).before($('<option>', {"class": "generatedData", value: key}).text(val));
-                    }
-                });
-                $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
-                msgRauPage.messageRef.child(key).orderByChild('time').startAt(recentMessagesTime).on('child_added', msgRauPage.addMessageToPage);
-            });
-            msgRauPage.messageRef.child(this.currentList).orderByChild('time').startAt(recentMessagesTime).on('child_added', this.addMessageToPage);
-            this.showList();
-        },
-        close: function()
-        {
-            this.messageRef.child('broadcast').orderByChild('time').startAt(recentMessagesTime).off();
-            $('#conversationSelect option').each(function()
-            {
-                msgRauPage.messageRef.child($(this).val()).orderByChild('time').startAt(recentMessagesTime).off();
-            });
-            $('#messageInput').off("keypress.postMessage");
+                return $(this).data("conversation") == pages.messaging.currentList;
+            }).addClass("selected");
+            pages.messaging.show();
         },
         onShow: function()
         {
             this.scrollMessages();
             $('#messageInput').focus();
         }
-    }),
-    settings: new RauPage('settings', "\uE01E", {
-        setup: function()
-        {
-            $('#userName').on('change.submit', function(e)
-            {
-                if($(this).val())
-                {
-                    ref.update({name: formatText($(this).val())});
-                }
-            });
-            $('#userColour').on('change', function(e)
-            {
-                $(this).val().replace(/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/, function(match, r, g, b)
-                {
-                    ref.child('colour').update({r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16)});
-                });
-            });
-            var ref = root.child('users').child(currentUser);
-            ref.on('child_changed', function(snap, prevChildKey)
-            {
-                if(snap.key() == 'name')
-                {
-                    $('#userName').val(snap.val());
-                }
-                if(snap.key() == 'colour')
-                {
-                    var c = snap.val();
-                    $('#userColour').val(rgbToHtml(c));
-                }
-            });
-            ref.once('value', function(snap)
-            {
-                var val = snap.val();
-                $('#userName').val(val.name);
-                $('#userColour').val(rgbToHtml(val.colour));
-            })
-        },
-        close: function()
-        {
-            root.child('users').child(currentUser).off();
-            $('#userName').off('change.submit');
-            $('#userColour').off('change.submit');
-        }
-    })
+    }, {currentList: "broadcast"}),
+    settings: new RauPage('settings', "\uE01E", {})
 }
 
 $(document).ready(function()
 {
-    setupConstantEvents();
+    root.onAuth(loginChanged);
+    //Desktop notifications
     if(window.Notification && Notification.permission != 'denied' && Notification.permission != 'granted')
     {
         Notification.requestPermission(function(status)
@@ -217,15 +88,16 @@ $(document).ready(function()
             }
         });
     }
+    
+    setupJqueryEvents();
     var header = $('nav.page-header');
     for(var page in pages)
     {
-        header.append($('<a>', {'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).on('click', {page: page}, function(e)
+        header.append($('<a>', {'class': 'btn pageBtn', id: page + 'Btn'}).text(pages[page].label).data("rauPage", page).on('click', function(e)
             {
-                pages[e.data.page].show();
+                pages[$(this).data("rauPage")].show();
             }));
     }
-    root.onAuth(loginChanged);
     if(root.getAuth())//If already logged in, load as though logging in
     {
         login();
@@ -236,75 +108,240 @@ $(document).ready(function()
     }
 });
 
-function setupConstantEvents()
+function setupJqueryEvents()
 {
-    $('#logoutBtn').on('click', function(e)
+    $('#logoutBtn').on('click', function(e)//Log out
     {
         e.preventDefault();
         root.unauth();
     });
-    $('.loginBtn').on('click', function(e)
+    $('.loginBtn').on('click', function(e)//Log in
     {
         e.preventDefault();
         var provider = $(this).data('login-provider');
-        root.authWithOAuthPopup(provider, function(error, authData)
+        firebaseAuthenticate(root, provider, function(error, authData)
         {
-            authenticate(error, authData, provider, true);
+            if(error)
+            {
+                console.error("Login Failed!", error);
+            }
+            else
+            {
+                //console.log("Authenticated successfully with payload:", authData);
+            }
+        });
+    });
+    $('#messageInput').autogrow({animate: false}).on("keypress", function(e)//Send Message
+    {
+        if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
+        {
+            root.child("messaging/" + RAU_settings.currentConversation).push({
+                user: root.getAuth().uid,
+                text: formatText($(this).val()),
+                time: Firebase.ServerValue.TIMESTAMP,
+                read: {
+                    [root.getAuth().uid]: true
+                }});
+            $(this).val('');
+            $(this).prop("rows", 1);
+            e.preventDefault();
+        }
+    });
+    $('#conversationSelect').on('change', function(e)//Change conversation
+    {
+        var val = $(this).val();
+        if(!val)//New conversation
+        {
+            val = "broadcast";//TODO:create conversation
+            $(this).val(val);
+        }
+        pages.messaging.showList(val);
+    });
+    $('#userName').on('change', function(e)//Change name
+    {
+        if($(this).val())
+        {
+            root.child('users').child(root.getAuth().uid).update({name: formatText($(this).val())});
+        }
+    });
+    $('#userColour').on('change', function(e)//Change name colour
+    {
+        $(this).val().replace(/#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})/, function(match, r, g, b)
+        {
+            root.child('users').child(root.getAuth().uid).child('colour').update({r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16)});
         });
     });
 }
 
+//Display
 function login()
 {
     $('.loginBtn').hide();
-    $('#logoutBtn').show();
     $('.pageBtn').show();
-    pages.messaging.show();
-    //pages.dictionary.show();
+    pages[RAU_settings.currentPage].show();
 }
 function logout()
 {
-    $('#logoutBtn').hide();
     $('.pageBtn').hide();
     $('.loginBtn').show();
-    pages[currentPage].hide();
+    pages[RAU_settings.currentPage].hide();
 }
 
-function RauPage(key, label, funcs)
+//Database hooks
+function setupDataHooks()
+{
+    root.child('runes').on("child_added", function(snap)
+    {
+        var val = snap.val();
+        function addRow(name, codePoint, category, latin)
+        {
+            $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
+        }
+        addRow(snap.key(), val.codePoint, val.category, val.latin);
+        if(val.pillared)
+        {
+            addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined);
+        }
+    });
+    root.child('users/' + root.getAuth().uid + "/conversations").orderByValue().on('child_added', function(snap)//Add conversation to messages page
+    {
+        var key = snap.key();
+        var val = snap.val();
+        $('#conversationSelect option').each(function()
+        {
+            if($(this).text() > val)
+            {
+                $(this).before($('<option>', {"class": "generatedData", value: key}).text(val));
+            }
+        });
+        $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
+        root.child('messaging').child(key).orderByChild('time').startAt(RAU_settings.messagesAfterTime).on('child_added', pages.messaging.addMessageToPage);
+    });
+    root.child('messaging').child("broadcast").orderByChild('time').startAt(RAU_settings.messagesAfterTime).on('child_added', pages.messaging.addMessageToPage);//Add broadcast to messages page
+    root.child('users').on('child_added', function(snap)//Populate userName datalist, set settings page fields
+    {
+        var val = snap.val();
+        if(snap.key() != root.getAuth().uid)
+        {
+            var list = $('#dataLists datalist#users');
+            var flag = true;
+            var option = $('<option>', {"class": "generatedData", value: val.name});
+            list.children('option').each(function()
+            {
+                if($(this).text() > val)
+                {
+                    $(this).before(option);
+                    flag = false;
+                    return false;//break
+                }
+            });
+            if(flag)//not added
+            {
+                list.append(option);
+            }
+        }
+        else
+        {
+            $('#userName').val(val.name);
+            $('#userColour').val(rgbToHtml(val.colour));
+        }
+    });
+    root.child('users').on('child_changed', function(snap)//Handle updating user names when they are changed (Including colour)
+    {
+        var val = snap.val();
+        var colour = rgbToHtml(val.colour);
+        $('.messageComponentName').filter(function()
+        {
+            return $(this).data("msgAuthor") == snap.key();
+        }).text(val.name).css("color", colour);
+        if(snap.key() == root.getAuth().uid)
+        {
+            $('#userName').val(val.name);
+            $('#userColour').val(colour);
+        }
+    });
+}
+function removeDataHooks()
+{
+    //Test whether or not this is required (rules state all should be disconnected on logout)
+}
+
+function RauPage(key, label, funcs, data)
 {
     this.key = key;
     this.label = label;
-    if(funcs.init)
-    {
-        funcs.init.call(this);
-    }
-    this.setup = funcs.setup ? funcs.setup.bind(this) : function(){};
-    this.close = funcs.close ? funcs.close.bind(this) : function(){};
     this.show = function(){
-        if(currentPage != null)
+        if(RAU_settings.currentPage != this.key)
         {
-            pages[currentPage].hide();
+            pages[RAU_settings.currentPage].hide();
+            RAU_settings.currentPage = this.key;
         }
-        currentPage = this.key;
         $('#' + key + 'Screen').show();
-        if(funcs.onShow)
+        if(funcs && funcs.onShow)
         {
             funcs.onShow.call(this);
         }
     };
     this.hide = function(){
-        currentPage = null;
         $('#' + key + 'Screen').hide();
-        if(funcs.onHide)
+        if(funcs && funcs.onHide)
         {
             funcs.onHide.call(this);
         }
     };
-    this.toJSON = function(){
-        return "<RauPage>" + key;
-    };
+    for(var func in funcs)//add all additional functions to the page
+    {
+        if(["key", "label", "show", "onShow", "hide", "onHide"].indexOf(func) < 0)//If not already handled/disallowed
+        {
+            this[func] = funcs[func].bind(this);
+        }
+    }
+    this.data = data || {};
 }
 
+/**
+* onLogin/onLogout
+* Extracted from doc.ready to kepp clean
+*/
+function loginChanged(authData)
+{
+    if(authData)
+    {
+        // save the user's profile into the database so we can list users,
+        // use them in Security and Firebase Rules, and show profiles
+        var ref = root.child("users").child(authData.uid);
+        ref.once("value", function(snap)
+        {
+            if(!snap.exists())
+            {
+                //TODO better colour generation
+                var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
+                ref.set({
+                    provider: authData.provider,
+                    name: function(authData)
+                        {
+                            var n = authData[authData.provider].displayName;
+                            return prompt("Enter your name", n) || n;
+                        }(authData),
+                    access: "basic",
+                    colour: {r: r, g: g, b: b}
+                });
+            }
+            setupDataHooks();
+            login();
+        });
+    }
+    else
+    {
+        $('.generatedData').remove();
+        removeDataHooks()
+        logout();
+    }
+}
+
+/** Easy rune input */
 function formatText(text)
 {
     return text.replace(/\\\\/g, "\\u5c")//change \\ to unicode string to be replaced later (enables escaping \)
@@ -348,77 +385,7 @@ function formatText(text)
         });
 }
 
-function authenticate(error, authData, provider, tryRedirect)
-{
-    if(error)
-    {
-        if(tryRedirect && error.code === "TRANSPORT_UNAVAILABLE")
-        {
-            // fall-back to browser redirects, and pick up the session
-            // automatically when we come back to the origin page
-            // second call will not have the tryRedirect parameter, so a recursive loop will never occur
-            root.authWithOAuthRedirect(provider, authenticate);
-        }
-        else
-        {
-            console.error("Login Failed!", error);
-        }
-    }
-    else
-    {
-        //console.log("Authenticated successfully with payload:", authData);
-    }
-}
-
-function loginChanged(authData)
-{
-    if(authData)
-    {
-        currentUser = authData.uid;
-        // save the user's profile into the database so we can list users,
-        // use them in Security and Firebase Rules, and show profiles
-        var ref = root.child("users").child(authData.uid);
-        ref.once("value", function(snap)
-        {
-            if(!snap.exists())
-            {
-                //TODO better colour generation
-                var r = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                var g = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                var b = Math.floor((Math.random() * 0x3F) + 1) + 0xC0;
-                ref.set({
-                    provider: authData.provider,
-                    name: function(authData)
-                        {
-                            var n = authData[authData.provider].displayName;
-                            return prompt("Enter your name", n) || n;
-                        }(authData),
-                    access: "basic",
-                    colour: {r: r, g: g, b: b}
-                });
-            }
-            for(var page in pages)
-            {
-                pages[page].setup();
-            }
-            login();
-        });
-    }
-    else
-    {
-        if(currentUser)
-        {
-            for(var page in pages)
-            {
-                pages[page].close();
-            }
-            $('.generatedData').remove();
-            currentUser = null;
-        }
-        logout();
-    }
-}
-
+/** Send desktop notification */
 function sendNotification(name, text)
 {
     if(window.Notification)
