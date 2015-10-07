@@ -54,6 +54,7 @@ html, body {
 }
 .messageComponentDate {
     font-size: 0.74em;
+    color: #202020;
     padding-right: 7px;
     padding-top: 5px;
     line-height: 0.8;
