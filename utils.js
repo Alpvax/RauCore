@@ -175,6 +175,7 @@ function DateDayHelper(date)
     };
 }
 
+/** Return true from onSubmit to keep the popup open */
 function Popup(innerSelector, onSubmit, onCreate)
 {
     var self = this;
@@ -195,11 +196,10 @@ function Popup(innerSelector, onSubmit, onCreate)
     }.bind(this);
     this.submit = function()
     {
-        if(onSubmit)
+        if(!onSubmit || !onSubmit.call(this))
         {
-            onSubmit.call(this);
+            this.hide();
         }
-        this.hide();
     }.bind(this);
     this.inner.find('.popupSubmit').on('click', function(e)
     {

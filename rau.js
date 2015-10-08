@@ -3,8 +3,7 @@ var root = new Firebase('https://rau.firebaseio.com/');
 var RAU_settings = {
     startPage: "messaging",//Start page
     currentPage: "messaging",//Start page
-    messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime(),//past 3 days and today (total 4 days)
-    currentConversation: "broadcast"
+    messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime()//past 3 days and today (total 4 days)
 };
 
 var pages = {
@@ -90,6 +89,7 @@ $(document).ready(function()
     }
     
     setupJqueryEvents();
+    setupPopups();
     var header = $('nav.page-header');
     for(var page in pages)
     {
@@ -149,7 +149,7 @@ function setupJqueryEvents()
     {
         if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
         {
-            root.child("messaging/" + RAU_settings.currentConversation).push({
+            root.child("messaging/" + pages.messaging.currentList).push({
                 user: root.getAuth().uid,
                 text: formatText($(this).val()),
                 time: Firebase.ServerValue.TIMESTAMP,
@@ -166,8 +166,7 @@ function setupJqueryEvents()
         var val = $(this).val();
         if(!val)//New conversation
         {
-            val = "broadcast";//TODO:create conversation
-            $(this).val(val);
+            popups.newConversation.show();
         }
         pages.messaging.showList(val);
     });
@@ -184,6 +183,91 @@ function setupJqueryEvents()
         {
             root.child('users').child(root.getAuth().uid).child('colour').update({r: parseInt(r, 16), g: parseInt(g, 16), b: parseInt(b, 16)});
         });
+    });
+}
+
+var popups = {};
+
+function setupPopups()
+{
+    popups.newConversation = new Popup($('#newConversation'), function(e)
+    {
+        var input = $('#convName');
+        if(!input.val())
+        {
+            alert("Group name must not be blank");
+            input.focus();
+            return true;//Keep the popup open
+        }
+        else
+        {
+            var val = input.val();
+            for(var i in this.users)
+            {
+                root.child("users/" + this.users[i] + "/conversations").push(val);
+            }
+            input.val('');
+            $('#conversationSelect').val(val);
+            pages.messaging.showList(val);
+        }
+        $('datalist#otherUsers').remove();
+    }, function()//onCreate
+    {
+        var self = this;
+        this.users = [];
+        this.userNames = [];
+        this.addUser = function(uid, name)
+        {
+            this.users.push(uid);
+            this.userNames.push(name);
+        }.bind(this);
+        this.addUser(root.getAuth().uid, $('#userName').val());
+        this.refreshNames = function()
+        {
+            $('datalist#otherUsers').remove();
+            var list = $('<datalist>', {id: "otherUsers"}).css("display", "none");
+            root.child('users').once('value', function(snapshot)
+            {
+                snapshot.forEach(function(snap)
+                {
+                    var key = snap.key();
+                    if(self.users.indexOf(key) < 0)//Prevent duplicates
+                    {
+                        list.append($('<option>', {id: "userName-" + key, value: snap.val().name}));
+                    }
+                });
+            });
+            $('body').append(list);
+            $('#invitedUsers').html('');
+            for(var i in this.userNames)
+            {
+                $('#invitedUsers').append($('<span>').text(this.userNames[i]), $('<br>'));
+            }
+        }.bind(this);
+        this.refreshNames();
+        $('#convName').focus();
+    });
+    $('#addUser').on('click', function(e)
+    {
+        var input = $('#addUserInput');
+        var val = input.val();
+        if(val)
+        {
+            var user = $('datalist#otherUsers option').filter(function()
+            {
+                return $(this).val() == val;
+            });
+            if(user.length > 0)
+            {
+                popups.newConversation.addUser(user.prop("id").substr(9), val);
+                input.val("");
+            }
+            else
+            {
+                alert("No user found called: \"" + val + "\"");
+            }
+        }
+        popups.newConversation.refreshNames();
     });
 }
 
@@ -209,9 +293,14 @@ function setupDataHooks()
         var val = snap.val();
         $('#conversationSelect option').each(function()
         {
+            var option = $('<option>', {"class": "generatedData", value: key}).text(val);
             if($(this).text() > val)
             {
-                $(this).before($('<option>', {"class": "generatedData", value: key}).text(val));
+                $(this).before(option);
+            }
+            else if($(this).is(":last-child"))
+            {
+                $(this).after(option);
             }
         });
         $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
@@ -221,7 +310,13 @@ function setupDataHooks()
     root.child('users').on('child_added', function(snap)//Populate userName datalist, set settings page fields
     {
         var val = snap.val();
-        if(snap.key() != root.getAuth().uid)
+        if(snap.key() == root.getAuth().uid)
+        {
+            $('#userName').val(val.name);
+            $('#userColour').val(rgbToHtml(val.colour));
+        }
+        /*DataLists disabled
+        else
         {
             var list = $('#dataLists datalist#otherUsers');
             var flag = true;
@@ -239,12 +334,7 @@ function setupDataHooks()
             {
                 list.append(option);
             }
-        }
-        else
-        {
-            $('#userName').val(val.name);
-            $('#userColour').val(rgbToHtml(val.colour));
-        }
+        }*/
     });
     root.child('users').on('child_changed', function(snap)//Handle updating user names when they are changed (Including colour)
     {
@@ -259,10 +349,11 @@ function setupDataHooks()
             $('#userName').val(val.name);
             $('#userColour').val(colour);
         }
+        /*DataLists disabled
         else
         {
             $('#dataLists datalist#otherUsers option#' + snap.key()).val(val.name);
-        }
+        }*/
     });
 }
 function removeDataHooks()
