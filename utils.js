@@ -42,7 +42,7 @@ var entityMap = {
     "\t": "&nbsp&nbsp&nbsp&nbsp"
 };
 
-function formatHtml(string)
+function escapeHtml(string)
 {
     return String(string).replace(/[&<>"'\/\n]/g, function(s)
     {
@@ -82,7 +82,7 @@ function formatHtml(string)
                     switch(typeof arg)
                     {
                         case "string":
-                            text += formatHtml(arg);
+                            text += escapeHtml(arg);
                             break;
                         case "number":
                         case "boolean":
@@ -151,10 +151,10 @@ function firebaseAuthenticate(ref, provider, callback)//Callback should accept e
     });
 }
 
-function DateDayHelper(date, keepDayTime)
+function DateDayHelper(date)
 {
     this.date = date || new Date();
-    this.modifyDays = function(days)
+    this.modifyDays = function(days, keepDayTime)
     {
         var d = this.date;
         var args = [null, d.getFullYear(), d.getMonth(), d.getDate() + (days ? days : 0)];//null as first term for instantiation
@@ -165,3 +165,41 @@ function DateDayHelper(date, keepDayTime)
         return new (Function.prototype.bind.apply(Date, args));
     };
 }
+
+/* Popup handling code, ensure you have included the #popupOverlay css */
+$('#popupOverlay').on('click', function(e)
+{
+    if($(e.target).is('#popupOverlay'))
+    {
+        $(this).data("currentPopup").hide();
+    }
+});
+
+function Popup(innerSelector, onSubmit)
+{
+    var self = this;
+    this.inner = innerSelector instanceof jQuery ? innerSelector : $(innerSelector);
+    this.onSubmit = onSubmit instanceof Function ? onSubmit : undefined;
+    this.show = function()
+    {
+        $('#popupOverlay').data("currentPopup", this).show();
+        this.inner.show();
+    }.bind(this);
+    this.hide = function()
+    {
+        $('#popupOverlay').data("currentPopup", null).hide();
+        this.inner.hide();
+    }.bind(this);
+    this.submit = function()
+    {
+        if(this.onSubmit)
+        {
+            this.onSubmit.call(this);
+        }
+        this.hide();
+    }.bind(this);
+    inner.find('.popupSubmit').on('click', function(e)
+    {
+        self.submit();
+    });
+ }

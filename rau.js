@@ -108,6 +108,20 @@ $(document).ready(function()
     }
 });
 
+//Display
+function login()
+{
+    $('.loginBtn').hide();
+    $('.pageBtn').show();
+    pages[RAU_settings.currentPage].show();
+}
+function logout()
+{
+    $('.pageBtn').hide();
+    $('.loginBtn').show();
+    pages[RAU_settings.currentPage].hide();
+}
+
 function setupJqueryEvents()
 {
     $('#logoutBtn').on('click', function(e)//Log out
@@ -173,20 +187,6 @@ function setupJqueryEvents()
     });
 }
 
-//Display
-function login()
-{
-    $('.loginBtn').hide();
-    $('.pageBtn').show();
-    pages[RAU_settings.currentPage].show();
-}
-function logout()
-{
-    $('.pageBtn').hide();
-    $('.loginBtn').show();
-    pages[RAU_settings.currentPage].hide();
-}
-
 //Database hooks
 function setupDataHooks()
 {
@@ -223,12 +223,12 @@ function setupDataHooks()
         var val = snap.val();
         if(snap.key() != root.getAuth().uid)
         {
-            var list = $('#dataLists datalist#users');
+            var list = $('#dataLists datalist#otherUsers');
             var flag = true;
-            var option = $('<option>', {"class": "generatedData", value: val.name});
+            var option = $('<option>', {"class": "generatedData", id: "userName-" + snap.key(), value: val.name});
             list.children('option').each(function()
             {
-                if($(this).text() > val)
+                if($(this).val() > val)
                 {
                     $(this).before(option);
                     flag = false;
@@ -258,6 +258,10 @@ function setupDataHooks()
         {
             $('#userName').val(val.name);
             $('#userColour').val(colour);
+        }
+        else
+        {
+            $('#dataLists datalist#otherUsers option#' + snap.key()).val(val.name);
         }
     });
 }
