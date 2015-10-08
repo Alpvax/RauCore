@@ -53,16 +53,16 @@ var pages = {
         {
             if(identifier)
             {
+                $('.messageList.selected').removeClass("selected");
+                this.currentList = identifier;
+            }
+            if($('.messageList.selected').length < 1)
+            {
                 $('.messageList').filter(function()
                 {
                     return $(this).data("conversation") == pages.messaging.currentList;
-                }).removeClass("selected");
-                this.currentList = identifier;
+                }).addClass("selected");
             }
-            $('.messageList').filter(function()
-            {
-                return $(this).data("conversation") == pages.messaging.currentList;
-            }).addClass("selected");
             pages.messaging.show();
         },
         onShow: function()
