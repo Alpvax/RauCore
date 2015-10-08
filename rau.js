@@ -1,15 +1,15 @@
 var root = new Firebase('https://rau.firebaseio.com/');
 
 var RAU_settings = {
-    currentPage: "messaging",//Start page
+    startPage: "messaging",//Start page
     currentPage: "messaging",//Start page
     messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime(),//past 3 days and today (total 4 days)
     currentConversation: "broadcast"
 };
 
 var pages = {
-    runes: new RauPage('runes', "\uE100", {}),
-    dictionary: new RauPage('dictionary', "\uE00E", {}),
+    runes: new RauPage('runes', "\uE100"),
+    dictionary: new RauPage('dictionary', "\uE00E"),
     messaging: new RauPage('messaging', "\uE006", {
         scrollMessages: function(time, messageList)
         {
@@ -71,7 +71,7 @@ var pages = {
             $('#messageInput').focus();
         }
     }, {currentList: "broadcast"}),
-    settings: new RauPage('settings', "\uE01E", {})
+    settings: new RauPage('settings', "\uE01E")
 }
 
 $(document).ready(function()
@@ -113,7 +113,7 @@ function login()
 {
     $('.loginBtn').hide();
     $('.pageBtn').show();
-    pages[RAU_settings.currentPage].show();
+    pages[RAU_settings.startPage].show();
 }
 function logout()
 {
@@ -293,11 +293,14 @@ function RauPage(key, label, funcs, data)
             funcs.onHide.call(this);
         }
     };
-    for(var func in funcs)//add all additional functions to the page
+    if(funcs)
     {
-        if(["key", "label", "show", "onShow", "hide", "onHide"].indexOf(func) < 0)//If not already handled/disallowed
+        for(var func in funcs)//add all additional functions to the page
         {
-            this[func] = funcs[func].bind(this);
+            if(["key", "label", "show", "onShow", "hide", "onHide"].indexOf(func) < 0)//If not already handled/disallowed
+            {
+                this[func] = funcs[func].bind(this);
+            }
         }
     }
     this.data = data || {};
