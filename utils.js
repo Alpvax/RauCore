@@ -120,6 +120,15 @@ $(document).ready(function()
     {
         $('.windowConsole').hide();
     }
+    
+    // Popup handling code, ensure you have included the #popupOverlay css
+    $('#popupOverlay').on('click', function(e)
+    {
+        if($(e.target).is('#popupOverlay'))
+        {
+            $(this).data("currentPopup").hide();
+        }
+    });
 });
 
 function rgbToHtml(r, g, b)
@@ -166,23 +175,17 @@ function DateDayHelper(date)
     };
 }
 
-/* Popup handling code, ensure you have included the #popupOverlay css */
-$('#popupOverlay').on('click', function(e)
-{
-    if($(e.target).is('#popupOverlay'))
-    {
-        $(this).data("currentPopup").hide();
-    }
-});
-
-function Popup(innerSelector, onSubmit)
+function Popup(innerSelector, onSubmit, onCreate)
 {
     var self = this;
     this.inner = innerSelector instanceof jQuery ? innerSelector : $(innerSelector);
-    this.onSubmit = onSubmit instanceof Function ? onSubmit : undefined;
     this.show = function()
     {
         $('#popupOverlay').data("currentPopup", this).show();
+        if(onCreate)
+        {
+            onCreate.call(this);
+        }
         this.inner.show();
     }.bind(this);
     this.hide = function()
@@ -192,13 +195,13 @@ function Popup(innerSelector, onSubmit)
     }.bind(this);
     this.submit = function()
     {
-        if(this.onSubmit)
+        if(onSubmit)
         {
-            this.onSubmit.call(this);
+            onSubmit.call(this);
         }
         this.hide();
     }.bind(this);
-    inner.find('.popupSubmit').on('click', function(e)
+    this.inner.find('.popupSubmit').on('click', function(e)
     {
         self.submit();
     });
