@@ -68,6 +68,11 @@ var pages = {
         {
             this.scrollMessages();
             $('#messageInput').focus();
+            $('footer').hide();
+        },
+        onHide: function()
+        {
+            $('footer').show();
         }
     }, {currentList: "broadcast"}),
     settings: new RauPage('settings', "\uE01E")
@@ -159,7 +164,7 @@ function setupJqueryEvents()
             $(this).val('');
             $(this).prop("rows", 1);
             e.preventDefault();
-            $(this).trigger("keyup");//Resize on submit
+            $(this).innerHeight($(this).data('autogrow-start-height') || 1);//Resize on submit
         }
     });
     $('#conversationSelect').on('change', function(e)//Change conversation
