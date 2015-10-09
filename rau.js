@@ -291,16 +291,12 @@ function setupDataHooks()
     {
         var key = snap.key();
         var val = snap.val();
-        $('#conversationSelect option').each(function()
+        $('#conversationSelect option.optionStart').nextUntil($('option.optionStop').next()).each(function()
         {
             var option = $('<option>', {"class": "generatedData", value: key}).text(val);
-            if($(this).text() > val)
+            if($(this).is(".optionStop") || $(this).text() > val)
             {
                 $(this).before(option);
-            }
-            else if($(this).is(":last-child"))
-            {
-                $(this).after(option);
             }
         });
         $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
@@ -315,26 +311,6 @@ function setupDataHooks()
             $('#userName').val(val.name);
             $('#userColour').val(rgbToHtml(val.colour));
         }
-        /*DataLists disabled
-        else
-        {
-            var list = $('#dataLists datalist#otherUsers');
-            var flag = true;
-            var option = $('<option>', {"class": "generatedData", id: "userName-" + snap.key(), value: val.name});
-            list.children('option').each(function()
-            {
-                if($(this).val() > val)
-                {
-                    $(this).before(option);
-                    flag = false;
-                    return false;//break
-                }
-            });
-            if(flag)//not added
-            {
-                list.append(option);
-            }
-        }*/
     });
     root.child('users').on('child_changed', function(snap)//Handle updating user names when they are changed (Including colour)
     {
@@ -349,16 +325,7 @@ function setupDataHooks()
             $('#userName').val(val.name);
             $('#userColour').val(colour);
         }
-        /*DataLists disabled
-        else
-        {
-            $('#dataLists datalist#otherUsers option#' + snap.key()).val(val.name);
-        }*/
     });
-}
-function removeDataHooks()
-{
-    //Test whether or not this is required (rules state all should be disconnected on logout)
 }
 
 function RauPage(key, label, funcs, data)
@@ -434,7 +401,6 @@ function loginChanged(authData)
     else
     {
         $('.generatedData').remove();
-        removeDataHooks()
         logout();
     }
 }
