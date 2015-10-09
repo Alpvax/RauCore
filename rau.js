@@ -12,7 +12,7 @@ var pages = {
     messaging: new RauPage('messaging', "\uE006", {
         scrollMessages: function(time, messageList)
         {
-            var f = $('footer');
+            var f = $('#messageInput');//$('footer');
             var scroll = f.offset().top + f.outerHeight(true) - $(window).height();
             if(scroll > 0)
             {
