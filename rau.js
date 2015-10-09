@@ -59,7 +59,7 @@ var pages = {
             {
                 $('.messageList').filter(function()
                 {
-                    return $(this).data("conversation") == pages.messaging.currentList;
+                    return $(this).data("conversation") == pages.messaging.data.currentList;
                 }).addClass("selected");
             }
             pages.messaging.show();
@@ -149,7 +149,7 @@ function setupJqueryEvents()
     {
         if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
         {
-            root.child("messaging/" + pages.messaging.currentList).push({
+            root.child("messaging/" + pages.messaging.data.currentList).push({
                 user: root.getAuth().uid,
                 text: formatText($(this).val()),
                 time: Firebase.ServerValue.TIMESTAMP,
@@ -159,6 +159,7 @@ function setupJqueryEvents()
             $(this).val('');
             $(this).prop("rows", 1);
             e.preventDefault();
+            $(this).trigger("keyup");//Resize on submit
         }
     });
     $('#conversationSelect').on('change', function(e)//Change conversation
