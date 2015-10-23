@@ -3,6 +3,7 @@ var root = new Firebase('https://rau.firebaseio.com/');
 var RAU_settings = {
     startPage: "messaging",//Start page
     currentPage: "messaging",//Start page
+    rauInput: false,//Inputs calling onTextInput on keypress will enter the corresponding rune instead of the latin char
     messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime()//past 3 days and today (total 4 days)
 };
 
@@ -150,23 +151,19 @@ function setupJqueryEvents()
             }
         });
     });
-    $('#messageInput').autogrow({animate: false}).on("keypress", function(e)//Send Message
+    $('#messageInput').autogrow({animate: false}).on("keypress", {callback: function(val)//Send Message
     {
-        if(e.keyCode == 13 || e.keyCode == 10)//Safari on iPhone sends 10
-        {
-            root.child("messaging/" + pages.messaging.data.currentList).push({
-                user: root.getAuth().uid,
-                text: formatText($(this).val()),
-                time: Firebase.ServerValue.TIMESTAMP,
-                read: {
-                    [root.getAuth().uid]: true
-                }});
-            $(this).val('');
-            $(this).prop("rows", 1);
-            e.preventDefault();
-            $(this).innerHeight($(this).data('autogrow-start-height') || 1);//Resize on submit
-        }
-    });
+        root.child("messaging/" + pages.messaging.data.currentList).push({
+            user: root.getAuth().uid,
+            text: formatText(val),
+            time: Firebase.ServerValue.TIMESTAMP,
+            read: {
+                [root.getAuth().uid]: true
+            }});
+        var t = $(this);
+        t.val('');//Clear input
+        t.innerHeight(t.data('autogrow-start-height') || 1);//Resize on submit
+    }}, onTextInput);
     $('#conversationSelect').on('change', function(e)//Change conversation
     {
         var val = $(this).val();
@@ -176,7 +173,10 @@ function setupJqueryEvents()
         }
         pages.messaging.showList(val);
     });
-    $('#userName').on('change', function(e)//Change name
+    $('#userName').on("keypress", {callback: function(val)
+    {
+        $(this).trigger('change');
+    }}, onTextInput).on('change', function(e)//Change name
     {
         if($(this).val())
         {
@@ -409,6 +409,53 @@ function loginChanged(authData)
         $('.generatedData').remove();
         logout();
     }
+}
+
+/** Format text in real time */
+function onTextInput(e)
+{
+    var t = $(this)
+    var c = t.caret();
+	   var val = t.val();
+	   if(c > 0 && val.substr(c - 1, 1) == "\\")
+	   {
+	       key = String.fromCharCode(e.which)
+	       var res = "\\" + key;
+	       switch(key)
+	       {
+	           case 'l'://\l changes input language
+	               RAU_settings.rauInput = !RAU_settings.rauInput;
+	               e.preventDefault();
+	               res = "";
+	               break;
+	           case '\\'://change \\ to unicode string to be replaced on submit (enables escaping \)
+	               e.preventDefault();
+	               res = "\\u5c";
+	               break;
+	       }
+	       t.val(val.substr(0, c - 1) + res + val.substr(c));
+	       c += res.length - 1;
+	   }
+	    else if(e.which == 13 || e.which == 10)//Safari on iPhone sends 10
+	   {
+	       console.log("Submitting");
+	       if(e.data.callback)
+	       {
+	           e.data.callback.call(this, t.val());
+	       }
+	       e.preventDefault();
+	   }
+    else if(RAU_settings.rauInput)
+    {
+        var rune = $('#rune_' + $('#rune_name_' + String.fromCharCode(e.which)).text().replace(" ", "_")).text();
+        if(rune)
+        {
+            e.preventDefault();
+            t.val(val.substr(0, c) + rune + val.substr(c));
+            c++;
+        }
+    }
+    t.caret(c);
 }
 
 /** Easy rune input */
