@@ -3,8 +3,7 @@ var root = new Firebase('https://rau.firebaseio.com/');
 var RAU_settings = {
     startPage: "messaging",//Start page
     currentPage: "messaging",//Start page
-    rauInput: false,//Inputs calling onTextInput on keypress will enter the corresponding rune instead of the latin char
-    messagesAfterTime: new DateDayHelper().modifyDays(-3).getTime()//past 3 days and today (total 4 days)
+    rauInput: false//Inputs calling onTextInput on keypress will enter the corresponding rune instead of the latin char
 };
 
 var pages = {
@@ -153,13 +152,14 @@ function setupJqueryEvents()
     });
     $('#messageInput').autogrow({animate: false}).on("keypress", {callback: function(val)//Send Message
     {
+        var time = Firebase.ServerValue.TIMESTAMP;
         root.child("messaging/" + pages.messaging.data.currentList).push({
             user: root.getAuth().uid,
             text: formatText(val),
-            time: Firebase.ServerValue.TIMESTAMP,
+            time: time,
             read: {
                 [root.getAuth().uid]: true
-            }});
+            }}).setPriority(time);
         var t = $(this);
         t.val('');//Clear input
         t.innerHeight(t.data('autogrow-start-height') || 1);//Resize on submit
@@ -306,9 +306,17 @@ function setupDataHooks()
             }
         });
         $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
-        root.child('messaging').child(key).orderByChild('time').startAt(RAU_settings.messagesAfterTime).on('child_added', pages.messaging.addMessageToPage);
+        var ref = root.child('messaging').child(key).orderByChild('time');
+        ref.limitToLast(1).once('child_added', function(snap)
+        {
+            ref.startAt(new DateDayHelper(snap.val().time).modifyDays(-3).getTime()).on('child_added', pages.messaging.addMessageToPage);
+        });
     });
-    root.child('messaging').child("broadcast").orderByChild('time').startAt(RAU_settings.messagesAfterTime).on('child_added', pages.messaging.addMessageToPage);//Add broadcast to messages page
+    var ref = root.child('messaging').child('broadcast').orderByChild('time');
+    ref.limitToLast(1).once('child_added', function(snap)
+    {
+        ref.startAt(new DateDayHelper(new Date(snap.val().time)).modifyDays(-3).getTime()).on('child_added', pages.messaging.addMessageToPage);//Add broadcast to messages page
+    });
     root.child('users').on('child_added', function(snap)//Populate userName datalist, set settings page fields
     {
         var val = snap.val();
