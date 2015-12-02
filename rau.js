@@ -306,17 +306,11 @@ function setupDataHooks()
             }
         });
         $('#messageInput').before($('<div>', {"class": "generatedData messageList"}).data("conversation", key));
-        var ref = root.child('messaging').child(key).orderByChild('time');
-        ref.limitToLast(1).once('child_added', function(snap)
-        {
-            ref.startAt(new DateDayHelper(snap.val().time).modifyDays(-3).getTime()).on('child_added', pages.messaging.addMessageToPage);
-        });
+        var ref = root.child('messaging').child(key).orderByChild('time').limitToLast(30);
+        ref.on('child_added', pages.messaging.addMessageToPage);
     });
-    var ref = root.child('messaging').child('broadcast').orderByChild('time');
-    ref.limitToLast(1).once('child_added', function(snap)
-    {
-        ref.startAt(new DateDayHelper(new Date(snap.val().time)).modifyDays(-3).getTime()).on('child_added', pages.messaging.addMessageToPage);//Add broadcast to messages page
-    });
+    var ref = root.child('messaging/broadcast').orderByChild('time').limitToLast(30);
+    ref.on('child_added', pages.messaging.addMessageToPage);//Add broadcast to messages page
     root.child('users').on('child_added', function(snap)//Populate userName datalist, set settings page fields
     {
         var val = snap.val();
