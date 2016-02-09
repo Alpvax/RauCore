@@ -8,7 +8,28 @@ var RAU_settings = {
 
 var pages = {
     runes: new RauPage('runes', "\uE100"),
-    dictionary: new RauPage('dictionary', "\uE00E"),
+    dictionary: new RauPage('dictionary', "\uE00E", {
+        addEntry(rau, translation, locale)
+        {
+            locale = locale || "en";
+            var dict = root.child("dictionary");
+            dict.child(rau).set(false);//Set to true when confirmed
+            dict.child(locale).child(translation).set(rau)
+        },
+        changeTranslation(oldRau, newRau, locale)
+        {
+            var dict = root.child("dictionary");
+            dict.child(oldRau).set(newRau);//Keep reference to revert
+            dict.child(newRau).set(false);//Set to true when confirmed
+            dict.child(locale || "en").orderByValue().startAt(oldRau).endAt(oldRau).once("value", function(snapshot)
+            {
+                snapshot.forEach(function(snap)
+                {
+                    snap.ref().set(newRau);
+                }
+            });
+        }
+    }),
     messaging: new RauPage('messaging', "\uE006", {
         scrollMessages: function(time, messageList)
         {
