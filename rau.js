@@ -438,47 +438,52 @@ function loginChanged(authData)
 function onTextInput(e)
 {
     var t = $(this)
-    var c = t.caret();
-	   var val = t.val();
-	   if(c > 0 && val.substr(c - 1, 1) == "\\")
-	   {
-	       key = String.fromCharCode(e.which)
-	       var res = "\\" + key;
-	       switch(key)
-	       {
-	           case 'l'://\l changes input language
-	               RAU_settings.rauInput = !RAU_settings.rauInput;
-	               e.preventDefault();
-	               res = "";
-	               break;
-	           case '\\'://change \\ to unicode string to be replaced on submit (enables escaping \)
-	               e.preventDefault();
-	               res = "\\u5c";
-	               break;
-	       }
-	       t.val(val.substr(0, c - 1) + res + val.substr(c));
-	       c += res.length - 1;
-	   }
-	    else if(e.which == 13 || e.which == 10)//Safari on iPhone sends 10
-	   {
-	       console.log("Submitting");
-	       if(e.data.callback)
-	       {
-	           e.data.callback.call(this, t.val());
-	       }
-	       e.preventDefault();
-	   }
+    var start = t[0].selectionStart;
+    var end = t[0].selectionEnd;
+    var val = t.val();
+    if(start > 0 && val.substr(start - 1, 1) == "\\")
+    {
+        key = String.fromCharCode(e.which)
+        var res = "\\" + key;
+        switch(key)
+        {
+            case 'l'://\l changes input language
+                RAU_settings.rauInput = !RAU_settings.rauInput;
+                e.preventDefault();
+                res = "";
+                break;
+            case '\\'://change \\ to unicode string to be replaced on submit (enables escaping \)
+                e.preventDefault();
+                res = "\\u5c";
+                break;
+        }
+        t.val(val.substr(0, start - 1) + res + val.substr(end));
+        start += res.length - 1;
+    }
+    else if(e.which == 13 || e.which == 10)//Safari on iPhone sends 10
+    {
+        console.log("Submitting");
+        if(e.data.callback)
+        {
+            e.data.callback.call(this, t.val());
+        }
+        e.preventDefault();
+    }
     else if(RAU_settings.rauInput)
     {
         var rune = $('#rune_' + $('#rune_name_' + String.fromCharCode(e.which)).text().replace(" ", "_")).text();
         if(rune)
         {
             e.preventDefault();
-            t.val(val.substr(0, c) + rune + val.substr(c));
-            c++;
+            t.val(val.substr(0, start) + rune + val.substr(end));
+            start++;
         }
     }
-    t.caret(c);
+    else if(end > start)
+    {
+        t.val(val.substr(0, start) + val.substr(end));
+    }
+    t[0].selectionStart = t[0].selectionEnd = start;
 }
 
 /** Easy rune input */

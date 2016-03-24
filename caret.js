@@ -13,10 +13,12 @@
               range2 = range1.cloneRange();
           range2.selectNodeContents(target);
           range2.setEnd(range1.endContainer, range1.endOffset);
-          return range2.toString().length;
+          return {start: range2.toString().length,
+                  end: range2.toString().length};
         }
         //textarea
-        return target.selectionStart;
+        return {start: target.selectionStart,
+                end: target.selectionEnd};
       }
       //IE<9
       if (document.selection) {
@@ -27,7 +29,8 @@
                 range2 = document.body.createTextRange();
             range2.moveToElementText(target);
             range2.setEndPoint('EndToEnd', range1);
-            return range2.text.length;
+            return {start: range2.text.length,
+                    end: range2.text.length};
         }
         //textarea
         var pos = 0,
@@ -36,13 +39,15 @@
             bookmark = range2.getBookmark();
         range.moveToBookmark(bookmark);
         while (range.moveStart('character', -1) !== 0) pos++;
-        return pos;
+      return {start: pos,
+              end: pos};
       }
       // Addition for jsdom support
       if (target.selectionStart)
         return target.selectionStart;
       //not supported
-      return 0;
+      return {start: 0,
+              end: 0};
     }
     //set
     if (pos == -1)
