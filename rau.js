@@ -26,7 +26,7 @@ var pages = {
                 snapshot.forEach(function(snap)
                 {
                     snap.ref().set(newRau);
-                }
+                });
             });
         }
     }),
