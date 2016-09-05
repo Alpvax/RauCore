@@ -8,11 +8,11 @@ else
 {
     ALP_CONST.DEBUG = 0;
 }
-/*var stPage = /\?.*page=(\d|\w+)/i.exec(document.location.href);
+var stPage = /\?.*page=(\d|\w+)/i.exec(document.location.href);
 if(stPage && stPage[0])
 {
     ALP_CONST.START_PAGE = stPage[1]
-}*/
+}
 //Fallback for when google CDN is inaccessible. Assumes also unable to get JQuery mobile
 if(typeof $ == "undefined")
 {

@@ -1,8 +1,10 @@
 var root = new Firebase('https://rau.firebaseio.com/');
 
+var simpleRunes = /\?.*simplerunes/i.exec(document.location.href);
+
 var RAU_settings = {
     startPage: "messaging",//Start page
-    currentPage: "messaging",//Start page
+	simpleRuneList: Boolean(simpleRunes),
     rauInput: false//Inputs calling onTextInput on keypress will enter the corresponding rune instead of the latin char
 };
 
@@ -101,6 +103,8 @@ var pages = {
 
 $(document).ready(function()
 {
+	RAU_settings.currentPage = pages[ALP_CONST.START_PAGE] ? ALP_CONST.START_PAGE : RAU_settings.startPage;
+	
     root.onAuth(loginChanged);
     //Desktop notifications
     if(window.Notification && Notification.permission != 'denied' && Notification.permission != 'granted')
@@ -139,7 +143,7 @@ function login()
 {
     $('.loginBtn').hide();
     $('.pageBtn').show();
-    pages[RAU_settings.startPage].show();
+    pages[RAU_settings.currentPage].show();
 }
 function logout()
 {
@@ -309,7 +313,7 @@ function setupDataHooks()
             $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
         }
         addRow(snap.key(), val.codePoint, val.category, val.latin);
-        if(val.pillared)
+        if(val.pillared && !RAU_settings.simpleRuneList)
         {
             addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined);
         }
@@ -364,7 +368,11 @@ function RauPage(key, label, funcs, data)
     this.show = function(){
         if(RAU_settings.currentPage != this.key)
         {
-            pages[RAU_settings.currentPage].hide();
+            var p = pages[RAU_settings.currentPage];
+			if(p)
+			{
+				p.hide();
+			}
             RAU_settings.currentPage = this.key;
         }
         $('#' + key + 'Screen').show();
@@ -445,15 +453,14 @@ function onTextInput(e)
     {
         key = String.fromCharCode(e.which)
         var res = "\\" + key;
+        e.preventDefault();
         switch(key)
         {
             case 'l'://\l changes input language
                 RAU_settings.rauInput = !RAU_settings.rauInput;
-                e.preventDefault();
                 res = "";
                 break;
             case '\\'://change \\ to unicode string to be replaced on submit (enables escaping \)
-                e.preventDefault();
                 res = "\\u5c";
                 break;
         }
