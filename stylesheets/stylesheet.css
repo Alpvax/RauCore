@@ -36,6 +36,10 @@ html, body {
     resize: vertical;
 }
 
+.hidden {
+	display: none
+}
+
 .messageList {
     display: none;
     /*max-height: 100%;

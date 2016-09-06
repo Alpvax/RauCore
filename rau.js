@@ -308,14 +308,14 @@ function setupDataHooks()
     root.child('runes').on("child_added", function(snap)
     {
         var val = snap.val();
-        function addRow(name, codePoint, category, latin)
+        function addRow(name, codePoint, category, latin, pillared)
         {
-            $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)));
+            $('#runeTable tr:last').after($('<tr>', {"class": "generatedData"}).append($('<td>', {id: "rune_" + name.replace(" ", "_")}).text(String.fromCharCode(codePoint)), $('<td>', {"id": "rune_name_" + (latin != undefined ? latin : codePoint)}).text(name), $('<td>').text(codePoint.toString(16).toUpperCase()), $('<td>').text(latin != undefined ? latin : ""), $('<td>').text(category)).addClass(pillared && RAU_settings.simpleRuneList ? "hidden" : null));
         }
         addRow(snap.key(), val.codePoint, val.category, val.latin);
-        if(val.pillared && !RAU_settings.simpleRuneList)
+        if(val.pillared)
         {
-            addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined);
+            addRow("pillared " + snap.key(), val.codePoint + 1, val.category, val.latin != undefined ? val.latin.toUpperCase() : undefined, true);
         }
     });
     root.child('users/' + root.getAuth().uid + "/conversations").orderByValue().on('child_added', function(snap)//Add conversation to messages page
