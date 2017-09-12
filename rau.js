@@ -449,7 +449,11 @@ function onTextInput(e)
     var start = t[0].selectionStart;
     var end = t[0].selectionEnd;
     var val = t.val();
-    if(start > 0 && val.substr(start - 1, 1) == "\\")
+    if(end > start)
+    {
+        t.val(val.substr(0, start) + val.substr(end));
+    }
+    else if(start > 0 && val.substr(start - 1, 1) == "\\")
     {
         key = String.fromCharCode(e.which)
         var res = "\\" + key;
@@ -485,10 +489,6 @@ function onTextInput(e)
             t.val(val.substr(0, start) + rune + val.substr(end));
             start++;
         }
-    }
-    else if(end > start)
-    {
-        t.val(val.substr(0, start) + val.substr(end));
     }
     t[0].selectionStart = t[0].selectionEnd = start;
 }

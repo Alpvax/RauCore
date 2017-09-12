@@ -1,0 +1,38 @@
+<style>
+    #popupOverlay {
+        display: none;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        margin: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        z-index: 1000;
+    }
+    .popup{
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        padding: 1%;
+        border-radius: 10px;
+        transform: translate(-50%, -50%);
+        background-color: rgb(247, 238, 232);
+        z-index: 1001;
+    }
+</style>
+<script>
+    if(!document.getElementByID("popupOverlay"))
+    {
+        if(window.jQuery)
+        {
+            jQuery("body").append(jQuery("<div id='popupOverlay'></div>")
+        }
+        else
+        {
+            var overlay = document.createElement("div");
+            overlay.id = "popupOverlay";
+            document.body.appendChild(overlay);
+        }
+    }
+</script>
