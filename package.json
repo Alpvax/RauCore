@@ -10,7 +10,11 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
-    "vue": "^2.6.10"
+    "firebase": "^6.4.2",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.2",
+    "vuex": "^3.0.1",
+    "vuexfire": "^3.1.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
