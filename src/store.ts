@@ -1,5 +1,5 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import Vue from "vue";
+import Vuex from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations, firebaseAction } from "vuexfire";
 import Rune from "./types/Runes";
