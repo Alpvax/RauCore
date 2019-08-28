@@ -21,7 +21,7 @@ Vue.use(Vuex);
 
 interface RauState {
   runes: Rune[];
-  //messages: Message[];
+  messages: [];//Message[];
   settings: {};
   user: {};
 }
@@ -29,6 +29,7 @@ interface RauState {
 export default new Vuex.Store({
   state: {
     runes: {},
+    messages: {},
   },
   mutations: {
     ...vuexfireMutations,
@@ -38,8 +39,8 @@ export default new Vuex.Store({
       return Object.entries(state.runes).map(([name, rune]: [string, any]) => {
         let r: Rune = {
           name,
-          codepoint: rune.codePoint as number,
-          category: rune.category as "letters" | "numbers" | "other",
+          codepoint: rune.codePoint,
+          category: rune.category,
           pillared: !!rune.pillared,
           index: rune.index,
         };
@@ -59,11 +60,11 @@ export default new Vuex.Store({
     }, ref) => {
       bindFirebaseRef("runes", db.ref(ref));
     }),
-    /*setMessagesRef: firebaseAction(({
+    setMessagesRef: firebaseAction(({
       bindFirebaseRef
     }, ref) => {
-      bindFirebaseRef("messages", ref)
-    }),
+      bindFirebaseRef("messages", db.ref(ref));
+    }),/*
     addMessage() {
       //TODO:
     },

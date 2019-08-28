@@ -10,10 +10,22 @@ import VueRouter from "vue-router";
 Vue.use(VueRouter);
 
 const routes = [
-  { path: "/runes", component: RunesPage },
+  {
+    path: "/login",
+    component: RunesPage},
+  {
+    path: "/runes",
+    component: RunesPage
+  },
   {
     path: "/messages",
-    component: MsgPage },
+    component: MsgPage,
+    beforeEnter: (to, from, next) => {
+      next(vm => {
+        return false;//TODO: Check authentication
+      });
+    },
+  },
   //{ path: "/bar", component: Bar }
 ]
 

@@ -1,35 +1,16 @@
 <template>
-  <table id="runeTable">
-    <tr>
-      <th>Rune</th>
-      <th>Name</th>
-      <th>Unicode code point</th>
-      <th>Latin input character</th>
-      <th>Category</th>
-    </tr>
-    <tr v-for="rune in runes" :key="rune.name">
-      <td>{{String.fromCharCode(rune.codepoint)}}</td>
-      <td>{{rune.name}}</td>
-      <td>{{rune.codepoint.toString(16).toUpperCase()}}</td>
-      <td>{{rune.latinInput}}</td>
-      <td>{{rune.category}}</td>
-    </tr>
-  </table>
+  <div>Showing messages for: {{$route.params.id}}</div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
 
 export default Vue.extend({
-  name: "RunesPage",
+  name: "MsgPage",
   computed: {
-    runes(): any {
-      console.log(this.$store.getters.runes);
-      return this.$store.getters.runes;
-    },
   },
   mounted() {
-    this.$store.dispatch("setRunesRef", "runes");
+    this.$store.dispatch("setMessagesRef", "messaging");
   }
 });
 </script>
