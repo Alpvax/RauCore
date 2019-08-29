@@ -3,6 +3,8 @@ import Vuex from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
 import Rune from "./types/Runes";
+import { DBMessage } from "./types/firebase/rtdb";
+import User from './types/User';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
@@ -22,15 +24,17 @@ Vue.use(Vuex);
 
 interface RauState {
   runes: Rune[];
-  messages: [];//Message[];
+  messages: { [k: string]: DBMessage };
   settings: {};
-  user: {};
+  user: User | null;
 }
 
-export default new Vuex.Store({
+export default new Vuex.Store<RauState>({
   state: {
     runes: [],
     messages: {},
+    settings: {},
+    user: null,
   },
   mutations: {
     ...vuexfireMutations,
@@ -38,6 +42,9 @@ export default new Vuex.Store({
   getters: {
     runes(state): Rune[] {
       return state.runes;
+    },
+    messages(state): { [k: string]: DBMessage } {
+      return state.messages;
     },
     db(state) {
       return db;
