@@ -37,7 +37,7 @@ const router = new VueRouter({
 });
 
 store.dispatch("setRunesRef", "runes");
-store.dispatch("setMessagesRef", "messages");
+store.dispatch("setMessagesRef", "messaging");
 
 new Vue({
   store,

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <message v-for="msg in messages" :key="msg.id"/>
+    <message v-for="msg in messages" :key="msg.id" :message="msg"/>
   </div>
 </template>
 
@@ -27,8 +27,8 @@ export default Vue.extend({
         let chatObj: { [k: string]: DBMessage } = this.$store.getters.messages[this.chatID];
         console.log(chatObj);//XXX
         if (chatObj) {
-          Object.entries(chatObj).map(([id, msg]) => {
-            let m: ChatMessage = {
+          return Object.entries(chatObj).map(([id, msg]) => {
+            return {
               id,
               sender: {
                 id: msg.user,
@@ -52,20 +52,14 @@ export default Vue.extend({
   },
   beforeRouteEnter(to, from, next) {
     next(vm => {
-      console.log("BeforeEnter:", to.params.id);//XXX
       //@ts-ignore
       vm.setChat(to.params.id);
     });
   },
   beforeRouteUpdate(to, from, next) {
-    console.log("BeforeUpdate:", to.params.id);//XXX
     this.setChat(to.params.id);
     next();
   },
-  /*mounted() {
-    console.log("Mounted @chat/" + this.$route.params.id);//XXX
-    this.$store.dispatch("setMessagesRef", "messaging");
-  },*/
   components: {
     Message,
   }

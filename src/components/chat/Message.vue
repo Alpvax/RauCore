@@ -27,7 +27,7 @@ export default Vue.extend({
       return {};
     },
     sendrecieve(): string {
-      return this.$store.getters.user.id == this.message.sender.id ? "sent" : "recieved";
+      return /*TODO: Add User;this.$store.getters.user.id == this.message.sender.id ? "sent" :*/ "recieved";
     },
     time(): string {
       return new Date(this.message.time).toLocaleString("en-GB");
