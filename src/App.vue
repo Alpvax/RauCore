@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <router-link to="/runes">Runes</router-link>
-    <router-link to="/chat/global">Chat</router-link>
+    <router-link :to="{ name: 'chat', params: { id: chatGroup }}">Chat</router-link>
     <router-view></router-view>
   </div>
 </template>
@@ -11,6 +11,11 @@ import Vue from "vue";
 
 export default Vue.extend({
   name: "app",
+  computed: {
+    chatGroup(): string {
+      return this.$store.getters.currentChat;
+    }
+  }
 });
 </script>
 

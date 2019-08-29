@@ -25,10 +25,8 @@ const routes: RouteConfig[] = [
         return false;//TODO: Check authentication
       });
     },*/
-    //redirect: "/chat/",
     children: [
-      { path: ":id", component: MessageList },
-      { path: "", redirect: "broadcast" },
+      { path: ":id", name: "chat", component: MessageList },
     ],
   },
   { path: "", redirect: '/runes' }, //Fallback to /runes

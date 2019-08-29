@@ -27,6 +27,7 @@ interface RauState {
   messages: { [k: string]: DBMessage };
   settings: {};
   user: User | null;
+  currentChat: string;
 }
 
 export default new Vuex.Store<RauState>({
@@ -35,8 +36,12 @@ export default new Vuex.Store<RauState>({
     messages: {},
     settings: {},
     user: null,
+    currentChat: "broadcast",
   },
   mutations: {
+    SET_CHAT(state, chat) {
+      state.currentChat = chat;
+    },
     ...vuexfireMutations,
   },
   getters: {
@@ -49,10 +54,16 @@ export default new Vuex.Store<RauState>({
     db(state) {
       return db;
     },
+    currentChat(state) {
+      return state.currentChat;
+    },
   },
   actions: {
     setRunesRef: firestoreAction(({ bindFirestoreRef }, ref) => bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))),
     setMessagesRef: firebaseAction(({ bindFirebaseRef }, ref) => bindFirebaseRef("messages", db.ref(ref))),
+    setChat({ commit }, chat) {
+      commit("SET_CHAT", chat);
+    },
     /*addMessage() {
       //TODO:
     },

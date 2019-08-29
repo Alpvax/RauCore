@@ -44,16 +44,22 @@ export default Vue.extend({
       return [];
     },
   },
+  methods: {
+    setChat(chat: string): void {
+      this.chatID = chat;
+      this.$store.dispatch("setChat", chat);
+    }
+  },
   beforeRouteEnter(to, from, next) {
     next(vm => {
       console.log("BeforeEnter:", to.params.id);//XXX
       //@ts-ignore
-      vm.chatID = to.params.id;
+      vm.setChat(to.params.id);
     });
   },
   beforeRouteUpdate(to, from, next) {
     console.log("BeforeUpdate:", to.params.id);//XXX
-    this.chatID = to.params.id;
+    this.setChat(to.params.id);
     next();
   },
   /*mounted() {
