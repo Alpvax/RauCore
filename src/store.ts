@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "firebase";
-import { vuexfireMutations, firebaseAction } from "vuexfire";
+import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
 import Rune from "./types/Runes";
 
 const firebaseConfig = {
@@ -16,6 +16,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
+const fs = firebase.firestore();
 
 Vue.use(Vuex);
 
@@ -28,7 +29,7 @@ interface RauState {
 
 export default new Vuex.Store({
   state: {
-    runes: {},
+    runes: [],
     messages: {},
   },
   mutations: {
@@ -36,36 +37,16 @@ export default new Vuex.Store({
   },
   getters: {
     runes(state): Rune[] {
-      return Object.entries(state.runes).map(([name, rune]: [string, any]) => {
-        let r: Rune = {
-          name,
-          codepoint: rune.codePoint,
-          category: rune.category,
-          pillared: !!rune.pillared,
-          index: rune.index,
-        };
-        if (rune.latin) {
-          r.latinInput = rune.latin;
-        }
-        return r;
-      });
+      return state.runes;
     },
     db(state) {
       return db;
     },
   },
   actions: {
-    setRunesRef: firebaseAction(({
-      bindFirebaseRef,
-    }, ref) => {
-      bindFirebaseRef("runes", db.ref(ref));
-    }),
-    setMessagesRef: firebaseAction(({
-      bindFirebaseRef
-    }, ref) => {
-      bindFirebaseRef("messages", db.ref(ref));
-    }),/*
-    addMessage() {
+    setRunesRef: firestoreAction(({ bindFirestoreRef }, ref) => bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))),
+    setMessagesRef: firebaseAction(({ bindFirebaseRef }, ref) => bindFirebaseRef("messages", db.ref(ref))),
+    /*addMessage() {
       //TODO:
     },
     login() {

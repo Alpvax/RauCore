@@ -19,18 +19,18 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Rune from "@/types/Runes";
 
 export default Vue.extend({
   name: "RunesPage",
   computed: {
-    runes(): any {
-      console.log(this.$store.getters.runes);
+    runes(): Rune[] {
       return this.$store.getters.runes;
     },
   },
-  mounted() {
+  /*created() {
     this.$store.dispatch("setRunesRef", "runes");
-  }
+  }*/
 });
 </script>
 

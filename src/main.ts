@@ -5,11 +5,11 @@ import store from "./store"
 Vue.config.productionTip = false
 
 import { RunesPage, MsgPage } from "./components";
-import VueRouter from "vue-router";
+import VueRouter, { RouteConfig } from "vue-router";
 
 Vue.use(VueRouter);
 
-const routes = [
+const routes: RouteConfig[] = [
   {
     path: "/login",
     component: RunesPage},
@@ -26,12 +26,15 @@ const routes = [
       });
     },
   },
-  //{ path: "/bar", component: Bar }
+  { path: "", redirect: '/runes' }, //Fallback to /runes
 ]
 
 const router = new VueRouter({
   routes,
 });
+
+store.dispatch("setRunesRef", "runes");
+store.dispatch("setMessagesRef", "messages");
 
 new Vue({
   store,
