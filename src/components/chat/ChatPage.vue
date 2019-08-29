@@ -9,9 +9,5 @@
 import Vue from "vue";
 export default Vue.extend({
   name: "ChatPage",
-  /*mounted() {
-    console.log("Mounted @" + this.$route.params.id);//XXX
-    this.$store.dispatch("setMessagesRef", "messaging");
-  },//XXX*/
 })
 </script>

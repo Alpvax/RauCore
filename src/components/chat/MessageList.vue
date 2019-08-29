@@ -18,14 +18,9 @@ export default Vue.extend({
     }
   },
   computed: {
-    /*chatID(): string {
-      return this.$route.params.id;
-    },*/
     messages(): ChatMessage[] {
-      console.log("Retrieving messages for chat:", this.chatID);//XXX
       if (this.chatID) {
         let chatObj: { [k: string]: DBMessage } = this.$store.getters.messages[this.chatID];
-        console.log(chatObj);//XXX
         if (chatObj) {
           return Object.entries(chatObj).map(([id, msg]) => {
             return {
