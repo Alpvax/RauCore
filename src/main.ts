@@ -4,7 +4,7 @@ import store from "./store"
 
 Vue.config.productionTip = false
 
-import { RunesPage, MsgPage } from "./components";
+import { RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
 
 Vue.use(VueRouter);
@@ -18,13 +18,18 @@ const routes: RouteConfig[] = [
     component: RunesPage
   },
   {
-    path: "/messages",
-    component: MsgPage,
-    beforeEnter: (to, from, next) => {
-      next(vm => {
+    path: "/chat",
+    component: ChatPage,
+    /*beforeEnter: (to, from, next) => {
+      next((vm) => {
         return false;//TODO: Check authentication
       });
-    },
+    },*/
+    //redirect: "/chat/",
+    children: [
+      { path: ":id", component: MessageList },
+      { path: "", redirect: "broadcast" },
+    ],
   },
   { path: "", redirect: '/runes' }, //Fallback to /runes
 ]
