@@ -4,7 +4,7 @@ import store from "./store";
 
 Vue.config.productionTip = false;
 
-import { RunesPage, ChatPage, MessageList } from "./components";
+import { Login, RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
 
 Vue.use(VueRouter);
@@ -12,7 +12,7 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: "/login",
-    component: RunesPage,
+    component: Login,
   },
   {
     path: "/runes",

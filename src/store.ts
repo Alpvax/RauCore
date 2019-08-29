@@ -18,6 +18,8 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 const fs = firebase.firestore();
+const auth = firebase.auth();
+auth.useDeviceLanguage();
 
 Vue.use(Vuex);
 
@@ -69,9 +71,10 @@ export default new Vuex.Store<RauState>({
     },
     /*addMessage() {
       //TODO:
-    },
-    login() {
-
     },*/
+    async login(context, provider) {
+      let user = await auth.signInWithPopup(provider);
+      console.log(user.user);
+    },
   },
 });

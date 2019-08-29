@@ -1,3 +1,4 @@
+export { default as Login } from "./Login.vue";
 export { default as RunesPage } from "./RunesPage.vue";
 //export { default as DictPage } from "./DictPage.vue";
 export { ChatPage, MessageList } from "./chat";
