@@ -2,9 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
-import Rune from "./types/Runes";
+import { Rune, User } from "./types";
 import { DBMessage } from "./types/firebase/rtdb";
-import User from './types/User';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
@@ -13,7 +12,7 @@ const firebaseConfig = {
   projectId: "firebase-rau",
   storageBucket: "firebase-rau.appspot.com",
   messagingSenderId: "248482438873",
-  appId: "1:248482438873:web:1f9f4ea54343c8d7"
+  appId: "1:248482438873:web:1f9f4ea54343c8d7",
 };
 firebase.initializeApp(firebaseConfig);
 
@@ -59,8 +58,12 @@ export default new Vuex.Store<RauState>({
     },
   },
   actions: {
-    setRunesRef: firestoreAction(({ bindFirestoreRef }, ref) => bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))),
-    setMessagesRef: firebaseAction(({ bindFirebaseRef }, ref) => bindFirebaseRef("messages", db.ref(ref))),
+    setRunesRef: firestoreAction(async ({ bindFirestoreRef }, ref) =>
+      bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))
+    ),
+    setMessagesRef: firebaseAction(async ({ bindFirebaseRef }, ref) =>
+      bindFirebaseRef("messages", db.ref(ref))
+    ),
     setChat({ commit }, chat) {
       commit("SET_CHAT", chat);
     },
@@ -71,4 +74,4 @@ export default new Vuex.Store<RauState>({
 
     },*/
   },
-})
+});

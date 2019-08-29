@@ -1,4 +1,4 @@
-export default interface Rune {
+export interface Rune {
   name: string;
   codepoint: number;
   category: "letters" | "numbers" | "other";

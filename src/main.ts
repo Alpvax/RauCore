@@ -1,8 +1,8 @@
-import Vue from "vue"
-import App from "./App.vue"
-import store from "./store"
+import Vue from "vue";
+import App from "./App.vue";
+import store from "./store";
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
 import { RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
@@ -12,10 +12,11 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: "/login",
-    component: RunesPage},
+    component: RunesPage,
+  },
   {
     path: "/runes",
-    component: RunesPage
+    component: RunesPage,
   },
   {
     path: "/chat",
@@ -29,8 +30,9 @@ const routes: RouteConfig[] = [
       { path: ":id", name: "chat", component: MessageList },
     ],
   },
-  { path: "", redirect: '/runes' }, //Fallback to /runes
-]
+  { path: "", redirect: "/runes" }, //Default to /runes
+  //TODO: 404;{ path: "*", component: NotFound404 }, //Fallback to 404
+];
 
 const router = new VueRouter({
   routes,
@@ -42,5 +44,5 @@ store.dispatch("setMessagesRef", "messaging");
 new Vue({
   store,
   router,
-  render: h => h(App)
-}).$mount("#app")
+  render: h => h(App),
+}).$mount("#app");

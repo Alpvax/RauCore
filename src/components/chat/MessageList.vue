@@ -7,7 +7,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Message from "./Message.vue";
-import { ChatMessage } from "@/types/Messages";
+import { ChatMessage } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
 
 export default Vue.extend({
@@ -15,7 +15,7 @@ export default Vue.extend({
   data() {
     return {
       chatID: "",
-    }
+    };
   },
   computed: {
     messages(): ChatMessage[] {
@@ -32,7 +32,7 @@ export default Vue.extend({
               time: msg.time,
               read: new Set(Object.keys(msg.read).filter(n => n)),
               text: msg.text,
-            }
+            };
           });
         }
       }
@@ -43,10 +43,10 @@ export default Vue.extend({
     setChat(chat: string): void {
       this.chatID = chat;
       this.$store.dispatch("setChat", chat);
-    }
+    },
   },
   beforeRouteEnter(to, from, next) {
-    next(vm => {
+    next((vm) => {
       //@ts-ignore
       vm.setChat(to.params.id);
     });
@@ -57,7 +57,7 @@ export default Vue.extend({
   },
   components: {
     Message,
-  }
+  },
 });
 </script>
 

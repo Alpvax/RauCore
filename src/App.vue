@@ -14,8 +14,8 @@ export default Vue.extend({
   computed: {
     chatGroup(): string {
       return this.$store.getters.currentChat;
-    }
-  }
+    },
+  },
 });
 </script>
 

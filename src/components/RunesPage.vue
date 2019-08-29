@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import Rune from "@/types/Runes";
+import { Rune } from "@/types";
 
 export default Vue.extend({
   name: "RunesPage",

@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { ChatMessage } from "@/types/Messages";
+import Vue from "vue";
+import { ChatMessage } from "@/types";
 export default Vue.extend({
   name: "Message",
   props: {
@@ -21,19 +21,22 @@ export default Vue.extend({
       let c: [number, number, number] | undefined = this.message.sender.colour;
       if (c) {
         return {
-          color: "rgb(" + c.map(n => Math.min(0, Math.max(255, n))).join(", ") + ")"
-        }
+          color: "rgb(" + c.map(n => Math.min(0, Math.max(255, n))).join(", ") + ")",
+        };
       }
       return {};
     },
     sendrecieve(): string {
-      return /*TODO: Add User;this.$store.getters.user.id == this.message.sender.id ? "sent" :*/ "recieved";
+      return "recieved";
+      /*TODO: Add User;
+      this.$store.getters.user.id == this.message.sender.id ? "sent" : "recieved";
+      */
     },
     time(): string {
       return new Date(this.message.time).toLocaleString("en-GB");
     },
-  }
-})
+  },
+});
 </script>
 
 <style scoped>
