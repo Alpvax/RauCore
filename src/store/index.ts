@@ -2,8 +2,8 @@ import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
-import { Rune, User } from "./types";
-import { DBMessage } from "./types/firebase/rtdb";
+import { Rune, User } from "@/types";
+import { DBMessage } from "@/types/firebase/rtdb";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
