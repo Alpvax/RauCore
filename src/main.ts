@@ -6,28 +6,47 @@ Vue.config.productionTip = false;
 
 import { Login, RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
+import { auth as fbAuth } from "firebase";
+import { User } from "./types";
+
+fbAuth().onAuthStateChanged(function(fbuser) {
+  console.log("AUTH:", fbuser);//XXX
+  if (fbuser) {
+    // User is signed in.
+    let user: User = {
+      id: fbuser.uid,
+      name: fbuser.displayName || fbuser.uid,
+    };
+    store.dispatch("setUser", user);
+  } else {
+    // User is signed out.
+    store.dispatch("setUser", null);
+  }
+});
 
 Vue.use(VueRouter);
 
 const routes: RouteConfig[] = [
   {
     path: "/login",
+    name: "login",
     component: Login,
   },
   {
     path: "/runes",
+    name: "runes",
     component: RunesPage,
   },
   {
     path: "/chat",
     component: ChatPage,
-    /*beforeEnter: (to, from, next) => {
-      next((vm) => {
-        return false;//TODO: Check authentication
-      });
-    },*/
     children: [
-      { path: ":id", name: "chat", component: MessageList },
+      {
+        path: ":id",
+        name: "chat",
+        component: MessageList,
+        meta: { requiresAuth: true },
+      },
     ],
   },
   { path: "", redirect: "/runes" }, //Default to /runes
@@ -36,6 +55,20 @@ const routes: RouteConfig[] = [
 
 const router = new VueRouter({
   routes,
+});
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // this route requires auth, check if logged in
+    // if not, redirect to login page.
+    if (!store.getters.loggedIn) {
+      next({
+        name: "login",
+        query: { redirectUrl: to.fullPath },
+      });
+      return; //Break early
+    }
+  }
+  next(); // make sure to always call next()!
 });
 
 store.dispatch("setRunesRef", "runes");

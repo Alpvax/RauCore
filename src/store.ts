@@ -40,7 +40,10 @@ export default new Vuex.Store<RauState>({
     currentChat: "broadcast",
   },
   mutations: {
-    SET_CHAT(state, chat) {
+    SET_USER(state, user: User | null) {
+      state.user = user;
+    },
+    SET_CHAT(state, chat: string) {
       state.currentChat = chat;
     },
     ...vuexfireMutations,
@@ -58,23 +61,33 @@ export default new Vuex.Store<RauState>({
     currentChat(state) {
       return state.currentChat;
     },
+    loggedIn(state) {
+      return state.user !== null;
+    },
+    user(state): User | null {
+      return state.user;
+    },
   },
   actions: {
-    setRunesRef: firestoreAction(async ({ bindFirestoreRef }, ref) =>
+    setRunesRef: firestoreAction(async ({ bindFirestoreRef }, ref: string) =>
       bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))
     ),
-    setMessagesRef: firebaseAction(async ({ bindFirebaseRef }, ref) =>
+    setMessagesRef: firebaseAction(async ({ bindFirebaseRef }, ref: string) =>
       bindFirebaseRef("messages", db.ref(ref))
     ),
-    setChat({ commit }, chat) {
+    async setChat({ commit }, chat: string) {
       commit("SET_CHAT", chat);
+
+    },
+    async setUser({ commit }, user: User | null) {
+      commit("SET_USER", user);
+
+    },
+    async logOut() {
+      await auth.signOut();
     },
     /*addMessage() {
       //TODO:
     },*/
-    async login(context, provider) {
-      let user = await auth.signInWithPopup(provider);
-      console.log(user.user);
-    },
   },
 });
