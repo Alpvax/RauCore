@@ -6,7 +6,7 @@ Vue.config.productionTip = false;
 
 import { Login, RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
-import { auth as fbAuth } from "firebase";
+/*import { auth as fbAuth } from "firebase";
 import { User } from "./types";
 
 fbAuth().onAuthStateChanged(function(fbuser) {
@@ -22,7 +22,9 @@ fbAuth().onAuthStateChanged(function(fbuser) {
     // User is signed out.
     store.dispatch("setUser", null);
   }
-});
+});*/
+
+console.log("STORE:", store);//XXX
 
 Vue.use(VueRouter);
 

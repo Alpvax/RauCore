@@ -2,7 +2,7 @@
   <div id="app">
     <router-link to="/runes">Runes</router-link>
     <router-link :to="{ name: 'chat', params: { id: chatGroup }}">Chat</router-link>
-    <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
+    <span v-if="isLoggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
     <router-link to="/login" v-else>Log in</router-link>
     <router-view></router-view>
   </div>
@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { isLoggedIn, getUser } from "@/store/getters";
 
 export default Vue.extend({
   name: "app",
@@ -17,11 +18,13 @@ export default Vue.extend({
     chatGroup(): string {
       return this.$store.getters.currentChat;
     },
-    loggedIn(): boolean {
+    isLoggedIn,
+    /*loggedIn(): boolean {
       return this.$store.getters.loggedIn;
-    },
+    },*/
     userName(): string {
-      return this.loggedIn ? this.$store.getters.user.name : "Not logged in";
+      return this.isLoggedIn ? getUser()!.name : "Not logged in";
+      //return this.loggedIn ? this.$store.getters.user.name : "Not logged in";
     },
   },
   methods: {

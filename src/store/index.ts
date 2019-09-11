@@ -1,7 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { getStoreBuilder } from "vuex-typex";
+import storeInitAuth from "./modules/auth";
 import firebase from "firebase";
-import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
+//import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
 import { Rune, User } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
 
@@ -16,14 +18,16 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.database();
-const fs = firebase.firestore();
+/*const db = firebase.database();
+const fs = firebase.firestore();*/
 const auth = firebase.auth();
 auth.useDeviceLanguage();
 
+storeInitAuth();
+
 Vue.use(Vuex);
 
-interface RauState {
+export interface RauState {
   runes: Rune[];
   messages: { [k: string]: DBMessage };
   settings: {};
@@ -31,7 +35,9 @@ interface RauState {
   currentChat: string;
 }
 
-export default new Vuex.Store<RauState>({
+const builder = getStoreBuilder<RauState>();
+
+export default builder.vuexStore(/*new Vuex.Store<RauState>(*/{
   state: {
     runes: [],
     messages: {},
@@ -39,8 +45,9 @@ export default new Vuex.Store<RauState>({
     user: null,
     currentChat: "broadcast",
   },
+});/*
   mutations: {
-    SET_USER(state, user: User | null) {
+    /*SET_USER(state, user: User | null) {
       state.user = user;
     },
     SET_CHAT(state, chat: string) {
@@ -61,7 +68,7 @@ export default new Vuex.Store<RauState>({
     currentChat(state) {
       return state.currentChat;
     },
-    loggedIn(state) {
+    /*loggedIn(state) {
       return state.user !== null;
     },
     user(state): User | null {
@@ -79,7 +86,7 @@ export default new Vuex.Store<RauState>({
       commit("SET_CHAT", chat);
 
     },
-    async setUser({ commit }, user: User | null) {
+    /*async setUser({ commit }, user: User | null) {
       commit("SET_USER", user);
 
     },
@@ -88,6 +95,6 @@ export default new Vuex.Store<RauState>({
     },
     /*addMessage() {
       //TODO:
-    },*/
+    },
   },
-});
+});*/
