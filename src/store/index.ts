@@ -1,11 +1,11 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { getStoreBuilder } from "vuex-typex";
-import storeInitAuth from "./modules/auth";
+import { getStoreBuilder, StoreBuilder } from "vuex-typex";
 import firebase from "firebase";
 //import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
 import { Rune, User } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
+import * as actions from "./actions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
@@ -23,9 +23,17 @@ const fs = firebase.firestore();*/
 const auth = firebase.auth();
 auth.useDeviceLanguage();
 
-storeInitAuth();
-
 Vue.use(Vuex);
+
+type PickAction<A extends keyof typeof actions> = (typeof actions)[A];
+type ExtractPayload<T> = T extends () => any ? never : T extends (p: infer P) => any ? P : never;
+export function dispatch<K extends keyof typeof actions, A = PickAction<K>, P = ExtractPayload<A>>(
+  action: K,
+  ...payload: A extends () => any ? never[] : A extends (p: infer P) => any ? [P] : never[]
+): ReturnType<(typeof actions)[K]> {
+  //@ts-ignore
+  return actions[action](payload);
+}
 
 export interface RauState {
   runes: Rune[];
@@ -35,7 +43,17 @@ export interface RauState {
   currentChat: string;
 }
 
+export type InitFunc = (builder?: StoreBuilder<RauState>) => void;
+
 const builder = getStoreBuilder<RauState>();
+
+async function initStoreModules() {
+  ["auth", "runes"].forEach(async (m) => {
+    let initFunc: InitFunc = await import("./modules/" + m);
+    initFunc(builder);
+  });
+}
+initStoreModules();
 
 export default builder.vuexStore(/*new Vuex.Store<RauState>(*/{
   state: {
