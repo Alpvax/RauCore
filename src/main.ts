@@ -2,12 +2,17 @@ import Vue from "vue";
 import App from "./App.vue";
 import store from "./store";
 
-Vue.config.productionTip = false;
-
 import { Login, RunesPage, ChatPage, MessageList } from "./components";
 import VueRouter, { RouteConfig } from "vue-router";
 import { auth as fbAuth } from "firebase";
 import { User } from "./types";
+
+import VueCompositionApi from "@vue/composition-api";
+import vueHooks from "@u3u/vue-hooks";
+
+Vue.use(vueHooks);
+
+Vue.config.productionTip = false;
 
 fbAuth().onAuthStateChanged(function(fbuser) {
   console.log("AUTH:", fbuser);//XXX
@@ -24,6 +29,8 @@ fbAuth().onAuthStateChanged(function(fbuser) {
   }
 });
 
+Vue.use(vueHooks);
+Vue.use(VueCompositionApi);
 Vue.use(VueRouter);
 
 const routes: RouteConfig[] = [

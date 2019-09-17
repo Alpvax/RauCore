@@ -9,9 +9,36 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { createComponent, ref, computed, Ref } from "@vue/composition-api";
+import { useStore, useGetters, useRouter } from "@u3u/vue-hooks";
+import { Store } from "vuex";
+import { RauState } from "@/store";
 
-export default Vue.extend({
+export default createComponent({
+  setup(props, context) {
+    const store: Ref<Store<RauState>> = useStore();
+    const { user } = useGetters(["user"]);
+    const { router, route } = useRouter();
+    const chatGroup: Ref<string> = ref("broadcast");
+    const loggedIn: Ref<boolean> = computed(() => user.value !== null);
+    const userName: Ref<string> = computed(() => loggedIn.value ? user.value!.name : "");
+    async function logOut() {
+      await store.value.dispatch("logOut");
+      if (route.value.matched.some(({ meta }) => meta.requiresAuth)) {
+        router.push("/");
+      }
+    }
+
+    return {
+      chatGroup,
+      loggedIn,
+      logOut,
+      userName,
+    };
+  },
+});
+
+/*export default Vue.extend({
   name: "app",
   computed: {
     chatGroup(): string {
@@ -33,7 +60,7 @@ export default Vue.extend({
       });
     },
   },
-});
+});*/
 </script>
 
 <style>

@@ -23,7 +23,7 @@ auth.useDeviceLanguage();
 
 Vue.use(Vuex);
 
-interface RauState {
+export interface RauState {
   runes: Rune[];
   messages: { [k: string]: DBMessage };
   settings: {};

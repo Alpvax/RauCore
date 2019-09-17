@@ -10,6 +10,8 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@u3u/vue-hooks": "^2.0.1",
+    "@vue/composition-api": "^0.3.1",
     "core-js": "^2.6.5",
     "firebase": "^6.4.2",
     "firebaseui": "^4.1.0",
