@@ -91,3 +91,13 @@ export default new Vuex.Store<RauState>({
     },*/
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as vuex_type_shim from "@/types/vuex";
+export type actiontypes = {
+  setRunesRef: (ref: string) => Promise<firebase.firestore.DocumentData[]>;
+  setMessagesRef: (ref: string) => Promise<firebase.database.DataSnapshot>;
+  setChat: (chat: string) => Promise<void>;
+  setUser: (user: User | null) => Promise<void>;
+  logOut: () => Promise<void>;
+};
