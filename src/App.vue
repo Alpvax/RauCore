@@ -9,21 +9,20 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, Ref } from "@vue/composition-api";
-import { useStore, useGetters, useRouter } from "@u3u/vue-hooks";
-import { Store } from "vuex";
-import { RauState } from "@/store";
+import { createComponent, computed } from "@vue/composition-api";
+import { useGetters, useActions, useRouter } from "@/helpers";
 
 export default createComponent({
   setup(props, context) {
-    const store: Ref<Store<RauState>> = useStore();
-    const { user } = useGetters(["user"]);
+    const {
+      user,
+      currentChat: chatGroup,
+      loggedIn,
+    } = useGetters("user", "currentChat", "loggedIn");
     const { router, route } = useRouter();
-    const chatGroup: Ref<string> = ref("broadcast");
-    const loggedIn: Ref<boolean> = computed(() => user.value !== null);
-    const userName: Ref<string> = computed(() => loggedIn.value ? user.value!.name : "");
+    const userName = computed(() => loggedIn.value ? user.value!.name : "");
     async function logOut() {
-      await store.value.dispatch("logOut");
+      await useActions("logOut").logOut();
       if (route.value.matched.some(({ meta }) => meta.requiresAuth)) {
         router.push("/");
       }
@@ -37,30 +36,6 @@ export default createComponent({
     };
   },
 });
-
-/*export default Vue.extend({
-  name: "app",
-  computed: {
-    chatGroup(): string {
-      return this.$store.getters.currentChat;
-    },
-    loggedIn(): boolean {
-      return this.$store.getters.loggedIn;
-    },
-    userName(): string {
-      return this.loggedIn ? this.$store.getters.user.name : "Not logged in";
-    },
-  },
-  methods: {
-    logOut() {
-      this.$store.dispatch("logOut").then(() => {
-        if (this.$route.matched.some(record => record.meta.requiresAuth)) {
-          this.$router.push("/");
-        }
-      });
-    },
-  },
-});*/
 </script>
 
 <style>

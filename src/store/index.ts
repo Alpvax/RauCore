@@ -101,3 +101,12 @@ export type actiontypes = {
   setUser: (user: User | null) => Promise<void>;
   logOut: () => Promise<void>;
 };
+
+export type gettertypes = {
+  runes: Rune[];
+  messages: { [k: string]: DBMessage };
+  db: firebase.database.Database;
+  currentChat: string;
+  loggedIn: boolean;
+  user: User | null;
+};
