@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <router-link to="/runes">Runes</router-link>
-    <router-link :to="{ name: 'chat', params: { id: chatGroup }}">Chat</router-link>
+    <router-link :to="{ name: 'chat', params: { id: currentChat }}">Chat</router-link>
     <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
     <router-link to="/login" v-else>Log in</router-link>
     <router-view></router-view>
@@ -16,7 +16,7 @@ export default createComponent({
   setup(props, context) {
     const {
       user,
-      currentChat: chatGroup,
+      currentChat,
       loggedIn,
     } = useGetters("user", "currentChat", "loggedIn");
     const { router, route } = useRouter();
@@ -29,7 +29,7 @@ export default createComponent({
     }
 
     return {
-      chatGroup,
+      currentChat,
       loggedIn,
       logOut,
       userName,
