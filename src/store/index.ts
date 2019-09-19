@@ -1,7 +1,8 @@
 import Vue from "vue";
-import Vuex from "vuex";
+import Vuex, { ActionContext } from "vuex";
 import firebase from "firebase";
-import { vuexfireMutations, firebaseAction, firestoreAction } from "vuexfire";
+import { vuexfireMutations } from "vuexfire";
+import { bindFirebaseRefAction, bindFirestoreRefAction } from "@/helpers/firebase";
 import { Rune, User } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
 
@@ -31,6 +32,51 @@ export interface RauState {
   currentChat: string;
 }
 
+export type RauActionContext = ActionContext<RauState, RauState>;// TODO: Possible module support?
+
+const getters = {
+  runes(state: RauState): Rune[] {
+    return state.runes;
+  },
+  messages(state: RauState): { [k: string]: DBMessage } {
+    return state.messages;
+  },
+  db(state: RauState) {
+    return db;
+  },
+  currentChat(state: RauState) {
+    return state.currentChat;
+  },
+  loggedIn(state: RauState) {
+    return state.user !== null;
+  },
+  user(state: RauState): User | null {
+    return state.user;
+  },
+};
+
+const actions = {
+  setRunesRef: bindFirestoreRefAction(
+    "runes",
+    (ref: string) => fs.collection(ref).orderBy("codepoint"),
+  ),
+  setMessagesRef: bindFirebaseRefAction("messages", (ref: string) => db.ref(ref)),
+  async setChat({ commit }: RauActionContext, chat: string) {
+    commit("SET_CHAT", chat);
+
+  },
+  async setUser({ commit }: RauActionContext, user: User | null) {
+    commit("SET_USER", user);
+
+  },
+  async logOut() {
+    await auth.signOut();
+  },
+  /*addMessage() {
+    //TODO:
+  },*/
+};
+
 export default new Vuex.Store<RauState>({
   state: {
     runes: [],
@@ -48,65 +94,23 @@ export default new Vuex.Store<RauState>({
     },
     ...vuexfireMutations,
   },
-  getters: {
-    runes(state): Rune[] {
-      return state.runes;
-    },
-    messages(state): { [k: string]: DBMessage } {
-      return state.messages;
-    },
-    db(state) {
-      return db;
-    },
-    currentChat(state) {
-      return state.currentChat;
-    },
-    loggedIn(state) {
-      return state.user !== null;
-    },
-    user(state): User | null {
-      return state.user;
-    },
-  },
-  actions: {
-    setRunesRef: firestoreAction(async ({ bindFirestoreRef }, ref: string) =>
-      bindFirestoreRef("runes", fs.collection(ref).orderBy("codepoint"))
-    ),
-    setMessagesRef: firebaseAction(async ({ bindFirebaseRef }, ref: string) =>
-      bindFirebaseRef("messages", db.ref(ref))
-    ),
-    async setChat({ commit }, chat: string) {
-      commit("SET_CHAT", chat);
-
-    },
-    async setUser({ commit }, user: User | null) {
-      commit("SET_USER", user);
-
-    },
-    async logOut() {
-      await auth.signOut();
-    },
-    /*addMessage() {
-      //TODO:
-    },*/
-  },
+  getters,
+  actions,
 });
+
+type ActionType<F extends (c: ActionContext<any, any>, p?: any) => any> =
+  F extends (c: ActionContext<any, any>) => any
+  ? () => ReturnType<F>
+  : F extends (c: ActionContext<any, any>, p: infer P) => any
+    ? (p: P) => ReturnType<F>
+    : never;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as vuex_type_shim from "@/types/vuex";
 export type actiontypes = {
-  setRunesRef: (ref: string) => Promise<firebase.firestore.DocumentData[]>;
-  setMessagesRef: (ref: string) => Promise<firebase.database.DataSnapshot>;
-  setChat: (chat: string) => Promise<void>;
-  setUser: (user: User | null) => Promise<void>;
-  logOut: () => Promise<void>;
+  [K in keyof typeof actions]: ActionType<(typeof actions)[K]>;
 };
 
 export type gettertypes = {
-  runes: Rune[];
-  messages: { [k: string]: DBMessage };
-  db: firebase.database.Database;
-  currentChat: string;
-  loggedIn: boolean;
-  user: User | null;
+  [K in keyof typeof getters]: ReturnType<(typeof getters)[K]>;
 };
