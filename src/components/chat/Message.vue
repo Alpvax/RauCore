@@ -27,10 +27,9 @@ export default Vue.extend({
       return {};
     },
     sendrecieve(): string {
-      return "recieved";
-      /*TODO: Add User;
-      this.$store.getters.user.id == this.message.sender.id ? "sent" : "recieved";
-      */
+      return this.$store.getters.loggedIn && this.$store.getters.user.id == this.message.sender.id
+        ? "sent"
+        : "recieved";
     },
     time(): string {
       return new Date(this.message.time).toLocaleString("en-GB");
@@ -42,7 +41,7 @@ export default Vue.extend({
 <style scoped>
 .message {
     padding: 0px 5px;
-    margin: 10px 0px;
+    margin: 10px 2px;
     border-radius: 10px;
     box-shadow: 0.5px 1px 1px 1px #aaaaaa;
     background: #ffffff;

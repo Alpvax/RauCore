@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="messagelist">
     <message v-for="msg in messages" :key="msg.id" :message="msg"/>
   </div>
 </template>
@@ -39,10 +39,24 @@ export default Vue.extend({
       return [];
     },
   },
+  watch: {
+    messages(newVal, oldVal) {
+      //let lastID = newVal[newVal.length - 1].id;
+      this.$nextTick(this.scrollToEnd);
+    },
+  },
   methods: {
     setChat(chat: string): void {
       this.chatID = chat;
       this.$store.dispatch("setChat", chat);
+    },
+    scrollToEnd: function () {
+      // scroll to the start of the last message
+      let lastChild = this.$el.lastElementChild;
+      if (lastChild) {
+        this.$el.scrollTop = lastChild.getBoundingClientRect().top;
+      }
+      console.log("Scrolling");//XXX
     },
   },
   beforeRouteEnter(to, from, next) {
@@ -62,18 +76,8 @@ export default Vue.extend({
 </script>
 
 <style>
-table {
-  display: block;
-  width: 100%;
-  overflow: auto;
-  word-break: normal;
-  word-break: keep-all;
-  }
-table th {
-  font-weight: bold;
-}
-table th, table td {
-  padding: 0.5rem 1rem;
-  border: 1px solid #e9ebec;
+.messagelist {
+  flex: 1 1 0;
+  overflow-y: auto;
 }
 </style>

@@ -63,13 +63,25 @@ export default createComponent({
     font-style: normal;
 }
 
-#app {
+html, body {
   width: 100%;
+  height: 100%;
+  margin: 0;
+  /*position: fixed;*/
+}
+
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   font-family: "rau", "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+
+router-link {
+  margin: 5px;
 }
 </style>
