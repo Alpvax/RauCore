@@ -18,19 +18,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Rune } from "@/types";
+import { createComponent } from "@vue/composition-api";
+import { useGetters } from "@/helpers";
 
-export default Vue.extend({
-  name: "RunesPage",
-  computed: {
-    runes(): Rune[] {
-      return this.$store.getters.runes;
-    },
+export default createComponent({
+  setup(props, context) {
+    const { runes } = useGetters("runes");
+    return { runes };
   },
-  /*created() {
-    this.$store.dispatch("setRunesRef", "runes");
-  }*/
 });
 </script>
 
