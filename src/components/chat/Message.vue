@@ -7,33 +7,39 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { createComponent, computed } from "@vue/composition-api";
 import { ChatMessage } from "@/types";
-export default Vue.extend({
-  name: "Message",
+import { useGetters } from "@/helpers";
+
+export default createComponent({
   props: {
     message: {
       type: Object as () => ChatMessage,
+      required: true,
     },
   },
-  computed: {
-    nameColour(): Partial<CSSStyleDeclaration> {
-      let c: [number, number, number] | undefined = this.message.sender.colour;
+  setup(props, context) {
+    const nameColour = computed(() => {
+      let c: [number, number, number] | undefined = props.message.sender.colour;
       if (c) {
         return {
-          color: "rgb(" + c.map(n => Math.min(0, Math.max(255, n))).join(", ") + ")",
+          color: "rgb(" + c.map(n => Math.min(255, Math.max(0, n))).join(", ") + ")",
         };
       }
       return {};
-    },
-    sendrecieve(): string {
-      return this.$store.getters.loggedIn && this.$store.getters.user.id == this.message.sender.id
+    });
+    const { user } = useGetters("user");
+    const sendrecieve = computed(() => {
+      return user.value && user.value.id === props.message.sender.id
         ? "sent"
         : "recieved";
-    },
-    time(): string {
-      return new Date(this.message.time).toLocaleString("en-GB");
-    },
+    });
+    const time = computed(() => new Date(props.message.time).toLocaleString("en-GB"));
+    return {
+      nameColour,
+      sendrecieve,
+      time,
+    };
   },
 });
 </script>
