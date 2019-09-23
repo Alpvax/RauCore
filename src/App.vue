@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <nav>
+    <nav class="nav-bar">
       <router-link to="/runes">Runes</router-link>
       <router-link :to="{ name: 'chat', params: { id: currentChat }}">Chat</router-link>
       <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
@@ -83,7 +83,33 @@ html, body {
   color: #2c3e50;
 }
 
-router-link {
-  margin: 5px;
+.nav-bar {
+  align-items: center;
+  background-color: #ccc;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: row;
+  justify-content: center;
+  height: 40px;
+}
+
+.nav-bar > a {
+  border: 2px solid #ccc;
+  color: #313030;
+  flex: 0 0 auto;
+  font-size: 1.4em;
+  padding: 6px 15px;
+  text-decoration: none;
+}
+
+.nav-bar > a.router-link-active {
+  border-bottom: 2px solid #3109c0;
+  color: #3109c0;
+}
+
+.nav-bar > a:hover {
+  background-color: #bbb;
+  border: 2px solid #bbb;
+  border-bottom: 2px solid #5109c0;
 }
 </style>
