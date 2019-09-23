@@ -14,10 +14,10 @@ Vue.config.productionTip = false;
 fbAuth().onAuthStateChanged(function(fbuser) {
   if (fbuser) {
     // User is signed in.
-    store.dispatch("setUser", fbuser.uid);
+    store.dispatch("setUserID", fbuser.uid);
   } else {
     // User is signed out.
-    store.dispatch("setUser", null);
+    store.dispatch("setUserID", null);
   }
 });
 
