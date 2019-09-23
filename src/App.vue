@@ -1,9 +1,11 @@
 <template>
   <div id="app">
-    <router-link to="/runes">Runes</router-link>
-    <router-link :to="{ name: 'chat', params: { id: currentChat }}">Chat</router-link>
-    <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
-    <router-link to="/login" v-else>Log in</router-link>
+    <nav>
+      <router-link to="/runes">Runes</router-link>
+      <router-link :to="{ name: 'chat', params: { id: currentChat }}">Chat</router-link>
+      <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
+      <router-link to="/login" v-else>Log in</router-link>
+    </nav>
     <router-view></router-view>
   </div>
 </template>
