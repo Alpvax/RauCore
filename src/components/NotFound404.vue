@@ -12,8 +12,6 @@ import { useGetters, runesToString } from "@/helpers";
 export default createComponent({
   setup(props, context) {
     const { getRuneByName } = useGetters("getRuneByName");
-    /*const neveRune = getRuneByName.value("neve");
-    const atzRune = getRuneByName.value("atz");*/
 
     const errorCode = computed(() => {
       const neveRune = getRuneByName.value("neve");
