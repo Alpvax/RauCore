@@ -6,20 +6,24 @@
 </template>
 
 <script lang="ts">
-import { createComponent } from "@vue/composition-api";
+import { createComponent, computed } from "@vue/composition-api";
 import { useGetters, runesToString } from "@/helpers";
 
 export default createComponent({
   setup(props, context) {
     const { getRuneByName } = useGetters("getRuneByName");
-    const neveRune = getRuneByName.value("neve");
-    const atzRune = getRuneByName.value("atz");
+    /*const neveRune = getRuneByName.value("neve");
+    const atzRune = getRuneByName.value("atz");*/
 
-    let errorCode = "404";
-
-    if (neveRune && atzRune) {
-      errorCode = runesToString([neveRune, atzRune, neveRune]);
-    }
+    const errorCode = computed(() => {
+      const neveRune = getRuneByName.value("neve");
+      const atzRune = getRuneByName.value("atz");
+      if (neveRune && atzRune) {
+        return runesToString([neveRune, atzRune, neveRune]);
+      } else {
+        return "404";
+      }
+    });
 
     return {
       errorCode,
