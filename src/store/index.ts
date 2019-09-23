@@ -40,6 +40,9 @@ export interface RauState {
 export type RauActionContext = ActionContext<RauState, RauState>;// TODO: Possible module support?
 
 const getters = {
+  getRuneByName(state: RauState): (name: string) => Rune | undefined {
+    return name => state.runes.find(r => r.name === name);
+  },
   runes(state: RauState): Rune[] {
     return state.runes;
   },
