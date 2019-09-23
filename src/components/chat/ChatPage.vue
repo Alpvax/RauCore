@@ -6,9 +6,9 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-export default Vue.extend({
-  name: "ChatPage",
+import { createComponent } from "@vue/composition-api";
+export default createComponent({
+  //name: "ChatPage",
 });
 </script>
 

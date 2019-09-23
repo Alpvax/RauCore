@@ -34,6 +34,12 @@ const routes: RouteConfig[] = [
         next({ name: "login", query: { redirectUrl: from.fullPath }});
       }
     },*/
+    beforeEnter(to, from, next) {
+      next((vm) => {
+        //@ts-ignore
+        vm.setChat(to.params.id);
+      });
+    },
     children: [
       {
         path: ":id",

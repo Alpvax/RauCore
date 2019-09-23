@@ -1,26 +1,26 @@
 <template>
-  <div class="messagelist">
+  <div ref="listel" class="messagelist">
     <message v-for="msg in messages" :key="msg.id" :message="msg"/>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { createComponent, computed, ref, watch } from "@vue/composition-api";
+import { useGetters, useActions } from "@/helpers";
 import Message from "./Message.vue";
-import { ChatMessage } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
 
-export default Vue.extend({
-  name: "MessageList",
-  data() {
-    return {
-      chatID: "",
-    };
+export default createComponent({
+  components: {
+    Message,
   },
-  computed: {
-    messages(): ChatMessage[] {
-      if (this.chatID) {
-        let chatObj: { [k: string]: DBMessage } = this.$store.getters.messages[this.chatID];
+  setup(props, context) {
+    const getters = useGetters("messages", "currentChat");
+    const chatID = getters.currentChat;
+    const listel = ref<Element | null>(null);
+    const messages = computed(() => {
+      if (chatID.value) {
+        let chatObj: { [k: string]: DBMessage } = getters.messages.value[chatID.value];
         if (chatObj) {
           return Object.entries(chatObj).map(([id, msg]) => {
             return {
@@ -37,40 +37,31 @@ export default Vue.extend({
         }
       }
       return [];
-    },
-  },
-  watch: {
-    messages(newVal, oldVal) {
-      //let lastID = newVal[newVal.length - 1].id;
-      this.$nextTick(this.scrollToEnd);
-    },
-  },
-  methods: {
-    setChat(chat: string): void {
-      this.chatID = chat;
-      this.$store.dispatch("setChat", chat);
-    },
-    scrollToEnd: function () {
+    });
+    function scrollToEnd() {
       // scroll to the start of the last message
-      let lastChild = this.$el.lastElementChild;
+      let el = listel.value!;
+      let lastChild = el.lastElementChild;
       if (lastChild) {
-        this.$el.scrollTop = lastChild.getBoundingClientRect().top;
+        el.scrollTop = lastChild.getBoundingClientRect().top;
       }
       console.log("Scrolling");//XXX
-    },
-  },
-  beforeRouteEnter(to, from, next) {
-    next((vm) => {
-      //@ts-ignore
-      vm.setChat(to.params.id);
+    }
+    watch(messages, (newVal, oldVal) => {
+      context.root.$nextTick(scrollToEnd);
     });
+    return {
+      chatID,
+      listel,
+      messages,
+      scrollToEnd,
+    };
   },
+  //@ts-ignore
   beforeRouteUpdate(to, from, next) {
-    this.setChat(to.params.id);
+    const { setChat } = useActions("setChat");
+    setChat(to.params.id);
     next();
-  },
-  components: {
-    Message,
   },
 });
 </script>
