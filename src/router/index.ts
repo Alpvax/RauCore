@@ -59,7 +59,7 @@ const routes: RouteConfig[] = [
     },
   },
   { path: "", redirect: "/runes" }, //Default to /runes
-  //TODO: 404;{ path: "*", component: NotFound404 }, //Fallback to 404
+  { path: "*", component: components.NotFound404 }, //Fallback to 404
 ];
 
 const router = new VueRouter({
