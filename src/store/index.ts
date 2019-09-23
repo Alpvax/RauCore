@@ -2,7 +2,11 @@ import Vue from "vue";
 import Vuex, { ActionContext } from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations } from "vuexfire";
-import { bindFirebaseRefAction, bindFirestoreRefAction } from "@/helpers/firebase";
+import {
+  bindFirebaseRefAction,
+  bindFirestoreRefAction,
+  unbindFirebaseRefAction,
+} from "@/helpers/firebase";
 import { Rune, User } from "@/types";
 import { DBMessage } from "@/types/firebase/rtdb";
 
@@ -28,6 +32,7 @@ export interface RauState {
   runes: Rune[];
   messages: { [k: string]: DBMessage };
   settings: {};
+  userid: string;
   user: User | null;
   currentChat: string;
 }
@@ -65,10 +70,30 @@ const actions = {
     commit("SET_CHAT", chat);
 
   },
-  async setUser({ commit }: RauActionContext, user: User | null) {
-    commit("SET_USER", user);
-
+  async setUserID({ commit, dispatch }: RauActionContext, userid: string | null) {
+    commit("SET_USER_ID", userid || "");
+    if (userid) {
+      dispatch("setUser", userid);
+    } else {
+      dispatch("removeUser");
+    }
   },
+  setUser: bindFirebaseRefAction(
+    "user",
+    (ref: string) => db.ref("users").child(ref),
+  ),
+  removeUser: unbindFirebaseRefAction("user"),
+  /*({ commit }: RauActionContext, userid: string) {
+    let user: User = {
+      id: userid,
+      name: userid,
+    };
+    commit("SET_USER", user);
+    db.ref("users").child(userid).on("value", (snap) => {
+      commit("SET_USER", );
+    });
+
+  },*/
   async logOut() {
     await auth.signOut();
   },
@@ -82,12 +107,13 @@ export default new Vuex.Store<RauState>({
     runes: [],
     messages: {},
     settings: {},
+    userid: "",
     user: null,
     currentChat: "broadcast",
   },
   mutations: {
-    SET_USER(state, user: User | null) {
-      state.user = user;
+    SET_USER_ID(state, userid: string) {
+      state.userid = userid;
     },
     SET_CHAT(state, chat: string) {
       state.currentChat = chat;

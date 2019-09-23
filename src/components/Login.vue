@@ -4,7 +4,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { createComponent, onMounted } from "@vue/composition-api";
+import { useRouter } from "@/helpers";
 import { auth } from "firebase";
 import * as firebaseui from "firebaseui";
 
@@ -19,9 +20,27 @@ const uiConfig: firebaseui.auth.Config = {
   ],
 };
 
-export default Vue.extend({
-  name: "login",
-  mounted() {
+export default createComponent({
+  setup(props, context) {
+    const { route, router } = useRouter();
+    let authUI = firebaseui.auth.AuthUI.getInstance();
+    onMounted(() => {
+      let signInSuccessUrl: string = route.value.query.redirectUrl as string | null || "/";
+      if (!authUI) {
+        authUI = new firebaseui.auth.AuthUI(auth());
+        uiConfig.callbacks = {
+          signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+            console.log("Redirection to:", redirectUrl, "\nQuery:", signInSuccessUrl);//XXX
+            router.push(signInSuccessUrl);
+            return false;
+          },
+        };
+      }
+      authUI.start("#firebaseui-auth-container", Object.assign({ signInSuccessUrl }, uiConfig));
+    });
+    return {};
+  },
+  /*mounted() {
     let authUI = firebaseui.auth.AuthUI.getInstance();
     let signInSuccessUrl: string = this.$route.query.redirectUrl as string | null || "/";
     if (!authUI) {
@@ -35,17 +54,6 @@ export default Vue.extend({
       };
     }
     authUI.start("#firebaseui-auth-container", Object.assign({ signInSuccessUrl }, uiConfig));
-  },
-  beforeRouteEnter(to, from, next) {
-    let redirect: string | false = to.query.redirectUrl as string || false;
-    console.log(from, auth().currentUser, redirect);//XXX
-    if (auth().currentUser) {
-      next(redirect);
-    } else if (redirect) {
-      next();
-    } else {
-      next({ name: "login", query: { redirectUrl: from.fullPath }});
-    }
-  },
+  },*/
 });
 </script>

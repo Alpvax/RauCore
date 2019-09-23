@@ -26,3 +26,12 @@ export function bindFirebaseRefAction<R>(
       bindFirebaseRef(key, refMapper(ref))
   ) as ReturnType<typeof bindFirebaseRefAction>;
 }
+
+export function unbindFirebaseRefAction<R>(
+  key: string,
+): (context: RauActionContext) => void {
+  return firebaseAction(
+    async ({ unbindFirebaseRef }) =>
+      unbindFirebaseRef(key)
+  ) as ReturnType<typeof unbindFirebaseRefAction>;
+}
