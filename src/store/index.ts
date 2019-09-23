@@ -30,7 +30,7 @@ Vue.use(Vuex);
 
 export interface RauState {
   runes: Rune[];
-  messages: { [k: string]: DBMessage };
+  messages: { [k: string]: { [k: string]: DBMessage }};
   settings: {};
   userid: string;
   user: User | null;
@@ -43,7 +43,7 @@ const getters = {
   runes(state: RauState): Rune[] {
     return state.runes;
   },
-  messages(state: RauState): { [k: string]: DBMessage } {
+  messages(state: RauState): { [k: string]: { [k: string]: DBMessage }} {
     return state.messages;
   },
   db(state: RauState) {
