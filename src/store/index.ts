@@ -8,7 +8,7 @@ import {
   unbindFirebaseRefAction,
 } from "@/helpers/firebase";
 import { Rune, User } from "@/types";
-import { DBMessage } from "@/types/firebase/rtdb";
+import { DBMessage, DBUser } from "@/types/firebase/rtdb";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
@@ -33,7 +33,7 @@ export interface RauState {
   messages: { [k: string]: { [k: string]: DBMessage }};
   settings: {};
   userid: string;
-  user: User | null;
+  user: DBUser | null;
   currentChat: string;
 }
 
@@ -59,7 +59,17 @@ const getters = {
     return state.user !== null;
   },
   user(state: RauState): User | null {
-    return state.user;
+    if (state.user) {
+      let { name, colour } = state.user!;
+      let { r, g, b } = colour;
+      return {
+        id: state.userid,
+        name,
+        colour: [r, g, b],
+      };
+    } else {
+      return null;
+    }
   },
 };
 
