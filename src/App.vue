@@ -3,7 +3,8 @@
     <nav class="nav-bar">
       <router-link to="/runes">Runes</router-link>
       <router-link :to="{ name: 'chat', params: { id: currentChat }}">Chat</router-link>
-      <span v-if="loggedIn" @click="logOut">{{userName}}</span> <!-- TODO: Settings & logout -->
+      <span v-if="loggedIn" @click="logOut">{{userName}}<img :src="avatarurl" /></span>
+      <!-- TODO: Settings & logout -->
       <router-link to="/login" v-else>Log in</router-link>
     </nav>
     <router-view></router-view>
@@ -13,6 +14,7 @@
 <script lang="ts">
 import { createComponent, computed } from "@vue/composition-api";
 import { useGetters, useActions, useRouter } from "@/helpers";
+import md5 from "md5";
 
 export default createComponent({
   setup(props, context) {
@@ -23,6 +25,32 @@ export default createComponent({
     } = useGetters("user", "currentChat", "loggedIn");
     const { router, route } = useRouter();
     const userName = computed(() => loggedIn.value ? user.value!.name : "");
+    const avatarurl = computed(() => {
+      let params: Partial<{
+        s: number; // Size
+        d: "404" | "mp" | "identicon" | "monsterid" | "wavatar" | "retro" | "robohash" | "blank"; // Or URL: default
+        f: "y"; // Force default
+        r: "g" | "pg" | "r" | "x"; // Rating
+      }> = {
+        s: 40, // Image size
+        r: "pg",
+        d: loggedIn.value ? "robohash" : "mp",
+      };
+      let hash = "";
+      if (loggedIn.value) {
+        let email = user.value!.email;
+        if (email) {
+          hash = md5(email.trim().toLowerCase());
+        } else {
+          hash = md5(user.value!.id.trim().toLowerCase()); // Fallback to hashing user id
+          params.f = "y";
+        }
+      } else {
+        params.f = "y";
+      }
+      return "https://www.gravatar.com/avatar/" + hash + "?" +
+        Object.entries(params).map((p: [string, any]) => p[0] + "=" + p[1]).join("&");
+    });
     async function logOut() {
       await useActions("logOut").logOut();
       if (route.value.matched.some(({ meta }) => meta.requiresAuth)) {
@@ -31,6 +59,7 @@ export default createComponent({
     }
 
     return {
+      avatarurl,
       currentChat,
       loggedIn,
       logOut,
