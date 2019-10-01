@@ -1,5 +1,5 @@
 import Vue from "vue";
-import Vuex, { ActionContext } from "vuex";
+import Vuex, { ActionContext, ActionTree } from "vuex";
 import firebase from "firebase";
 import { vuexfireMutations } from "vuexfire";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/helpers/firebase";
 import { Rune, User } from "@/types";
 import { DBMessage, DBUser } from "@/types/firebase/rtdb";
+import * as runesmodule from "./runes";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBBpBbncl_mEM2NwZIBKL3Fe11CPOULT58",
@@ -37,7 +38,7 @@ export interface RauState {
   currentChat: string;
 }
 
-export type RauActionContext = ActionContext<RauState, RauState>;// TODO: Possible module support?
+export type RauActionContext<T> = ActionContext<T, RauState>;// TODO: Possible module support?
 
 const getters = {
   getRuneByName(state: RauState): (name: string) => Rune | undefined {
@@ -79,11 +80,11 @@ const actions = {
     (ref: string) => fs.collection(ref).orderBy("codepoint"),
   ),
   setMessagesRef: bindFirebaseRefAction("messages", (ref: string) => db.ref(ref)),
-  async setChat({ commit }: RauActionContext, chat: string) {
+  async setChat({ commit }: RauActionContext<RauState>, chat: string) {
     commit("SET_CHAT", chat);
 
   },
-  async setUserID({ commit, dispatch }: RauActionContext, userid: string | null) {
+  async setUserID({ commit, dispatch }: RauActionContext<RauState>, userid: string | null) {
     commit("SET_USER_ID", userid || "");
     if (userid) {
       dispatch("setUser", userid);
@@ -115,6 +116,13 @@ const actions = {
   },*/
 };
 
+const modules = {
+  runesmodule: {
+    getters: runesmodule.getters,
+    actions: runesmodule.actions,
+  },
+};
+
 export default new Vuex.Store<RauState>({
   state: {
     runes: [],
@@ -144,12 +152,46 @@ type ActionType<F extends (c: ActionContext<any, any>, p?: any) => any> =
     ? (p: P) => ReturnType<F>
     : never;
 
+type NamespacedActionType<A> = A extends (c: ActionContext<any, any>, p?: any) => any
+  ? ActionType<A>
+  : A extends { root?: false | undefined; handler: (c: ActionContext<any, any>, p?: any) => any }
+    ? ActionType<A["handler"]>
+    : never;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as vuex_type_shim from "@/types/vuex";
 export type actiontypes = {
-  [K in keyof typeof actions]: ActionType<(typeof actions)[K]>;
+  [K in keyof typeof actions]: NamespacedActionType<(typeof actions)[K]>;
 };
 
 export type gettertypes = {
   [K in keyof typeof getters]: ReturnType<(typeof getters)[K]>;
 };
+
+export type namespaced = {
+  actions: {
+    [N in keyof typeof modules]: typeof modules[N] extends {actions: ActionTree<any, any>}
+      ? {
+          [K in keyof typeof modules[N]["actions"]]:
+            NamespacedActionType<typeof modules[N]["actions"][K]>
+        }
+      : never;
+  };
+  getters: {
+    [N in keyof typeof modules]: typeof modules[N] extends {getters: object}
+      ? {
+          [K in keyof typeof modules[N]["getters"]]: ReturnType<
+            (typeof modules[N]["getters"][K]) extends (...args: any[]) => any
+            ? typeof modules[N]["getters"][K]
+            : () => any
+          >;
+        }
+      : never;
+  };
+}
+
+declare function addModuleFunc<T, N extends string, K extends string>
+(namespacedKey: N, key: K, func: T): {
+  [P in N | K]: T;
+};
+addModuleFunc("module/key", "key", () => console.log("NOOP"));
