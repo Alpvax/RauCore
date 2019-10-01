@@ -3,6 +3,6 @@ export interface Rune {
   codepoint: number;
   category: "letters" | "numbers" | "other";
   pillared: boolean;
-  index: number;
+  index?: number;
   latinInput?: string;
 }
