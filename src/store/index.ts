@@ -8,6 +8,7 @@ import {
   unbindFirebaseRefAction,
 } from "@/helpers/firebase";
 import { Rune, User } from "@/types";
+import { FilteredObj } from "@/types/utils";
 import { DBMessage, DBUser } from "@/types/firebase/rtdb";
 import * as runesmodule from "./runes";
 
@@ -168,16 +169,17 @@ export type gettertypes = {
   [K in keyof typeof getters]: ReturnType<(typeof getters)[K]>;
 };
 
-export type namespaced = {
-  actions: {
+
+export type namespaced = FilteredObj<{
+  actions: FilteredObj<{
     [N in keyof typeof modules]: typeof modules[N] extends {actions: ActionTree<any, any>}
       ? {
           [K in keyof typeof modules[N]["actions"]]:
             NamespacedActionType<typeof modules[N]["actions"][K]>
         }
       : never;
-  };
-  getters: {
+  }>;
+  getters: FilteredObj<{
     [N in keyof typeof modules]: typeof modules[N] extends {getters: object}
       ? {
           [K in keyof typeof modules[N]["getters"]]: ReturnType<
@@ -187,8 +189,8 @@ export type namespaced = {
           >;
         }
       : never;
-  };
-}
+  }>;
+}>;
 
 declare function addModuleFunc<T, N extends string, K extends string>
 (namespacedKey: N, key: K, func: T): {
