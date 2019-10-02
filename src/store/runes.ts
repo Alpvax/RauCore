@@ -14,7 +14,7 @@ type RunesGetter<R> = (state: RunesState, runeGetters: typeof getters, rootState
 }*/
 function makeGetter <K extends Exclude<keyof Rune, "category" | "pillared" | "index">>(key: K):
   (state: RunesState, runeGetters: any/*typeof getters*/, rootState: RauState) =>
-    (filter: Rune[K]) => (Rune | undefined) {/*
+    (filter: Exclude<Rune[K], undefined>) => (Rune | undefined) {/*
     (state: RunesState, runeGetters: typeof getters, rootState: RauState) =>
       (filter: Rune[K]) => Rune | undefined {*/
   return (state: RunesState, runeGetters: typeof getters, rootState: RauState) =>
