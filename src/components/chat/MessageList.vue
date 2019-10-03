@@ -15,7 +15,7 @@ export default createComponent({
     Message,
   },
   setup(props, context) {
-    const getters = useGetters("messages", "currentChat");
+    const getters = useGetters(["messages", "currentChat"]);
     const chatID = getters.currentChat;
     const listel = ref<Element | null>(null);
     const messages = computed(() => {

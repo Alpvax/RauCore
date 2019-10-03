@@ -20,7 +20,7 @@ export default createComponent({
       user,
       currentChat,
       loggedIn,
-    } = useGetters("user", "currentChat", "loggedIn");
+    } = useGetters(["user", "currentChat", "loggedIn"]);
     const { router, route } = useRouter();
     const userName = computed(() => loggedIn.value ? user.value!.name : "");
     async function logOut() {

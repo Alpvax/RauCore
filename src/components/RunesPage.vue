@@ -23,7 +23,7 @@ import { useGetters } from "@/helpers";
 
 export default createComponent({
   setup(props, context) {
-    const { runes } = useGetters("runes");
+    const { runes } = useGetters(["runes"]);
     return { runes };
   },
 });

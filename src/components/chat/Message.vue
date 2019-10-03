@@ -28,7 +28,7 @@ export default createComponent({
       }
       return {};
     });
-    const { user } = useGetters("user");
+    const { user } = useGetters(["user"]);
     const sendrecieve = computed(() => {
       return user.value && user.value.id === props.message.sender.id
         ? "sent"
