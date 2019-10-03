@@ -34,10 +34,6 @@ export const actions = {
       "runes",
       (ref: string, { firestore }) => firestore().collection(ref).orderBy("codepoint"),
     ),
-    /*handler: bindFirestoreRefAction(
-      "runes",
-      (ref: string) => fs.collection(ref).orderBy("codepoint"),
-    ),*/
   },
 };
 

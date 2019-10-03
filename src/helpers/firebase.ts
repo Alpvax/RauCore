@@ -30,14 +30,29 @@ type FirestoreAction<
     ? firebase.firestore.DocumentData
     : firebase.firestore.DocumentData[]);
 
-
-type FirestoreRefMapperContext<R> = {
-  bind: (ref: R) => Promise<R extends firebase.firestore.DocumentReference
-    ? firebase.firestore.DocumentData
-    : firebase.firestore.DocumentData[]>;
-  unbind: () => void;
+/**
+ * Function mapping the action parameter to a firestore bind argument,
+ * if return value is `null`, data will be unbound
+*/
+type RefMapper<T, R extends
+  firebase.firestore.Query
+  | firebase.firestore.CollectionReference
+  | firebase.firestore.DocumentReference
+  | null
+> = (ref: T, context: {
   firestore: typeof firebase.firestore;
-};
+}) => R | null/*
+  firebase.firestore.Query
+  | firebase.firestore.CollectionReference
+  | firebase.firestore.DocumentReference
+  | null
+>;*/
+type RefMapperReturn<M extends (...args: any[]) => any> =
+  ReturnType<M> extends infer R | null ? R : never/*
+    ? firebase.firestore.DocumentReference extends R
+      ? firebase.firestore.DocumentData
+      : firebase.firestore.DocumentData[]
+    : never;
 /*export function firestoreRefAction<ModuleState, R>(
   key: string,
   refMapper: (
@@ -47,31 +62,39 @@ type FirestoreRefMapperContext<R> = {
   | firebase.firestore.CollectionReference
   | firebase.firestore.DocumentReference
 ): (context: RauActionContext<ModuleState>) => void;*/
-export function firestoreRefAction<
-  ModuleState, RefType, MapperReturn extends
-    firebase.firestore.Query
-  | firebase.firestore.CollectionReference
-  | firebase.firestore.DocumentReference
->(
+
+/**
+ * @param refMapper Function mapping the action parameter to a firestore DocumentReference.
+ * If return value is `null`, data will be unbound
+*/
+export function firestoreRefAction<R>(
   key: string,
-  refMapper: (
-    ref: RefType,
-    context: FirestoreRefMapperContext<MapperReturn>,
-  ) => MapperReturn
-): (context: RauActionContext<ModuleState>, ref?: RefType) =>
-// eslint-disable-next-line no-undef
-Promise<(ReturnType<typeof refMapper> extends firebase.firestore.DocumentReference
-  ? firebase.firestore.DocumentData
-  : firebase.firestore.DocumentData[])
-| void> {
-  return firestoreAction(async ({ bindFirestoreRef, unbindFirestoreRef }, ref: RefType) => {
-    if (ref !== undefined) {
-      let d = bindFirestoreRef(key, refMapper(ref, firebase.firestore) as MapperReturn);
-      return d;
+  refMapper: RefMapper<R, firebase.firestore.DocumentReference>
+): (context: RauActionContext<any>, ref?: R) => Promise<firebase.firestore.DocumentData | null>;
+/**
+ * @param refMapper Function mapping the action parameter to a firestore Query
+ * or CollectionReference.
+ * If return value is `null`, data will be unbound
+*/
+export function firestoreRefAction<R>(
+  key: string,
+  refMapper: RefMapper<R, firebase.firestore.Query>
+): (context: RauActionContext<any>, ref?: R) => Promise<firebase.firestore.DocumentData[] | null>;
+export function firestoreRefAction<R>(
+  key: string,
+  refMapper: RefMapper<R, firebase.firestore.DocumentReference | firebase.firestore.Query>
+): (context: RauActionContext<any>, ref?: R) => Promise<any> {
+  return firestoreAction(async ({ bindFirestoreRef, unbindFirestoreRef }, ref?: R) => {
+    let firestoreRef = ref === undefined
+      ?  null
+      : await refMapper(ref, { firestore: firebase.firestore });
+    if (firestoreRef) {
+      //@ts-ignore
+      return bindFirestoreRef(key, firestoreRef);
     } else {
       return unbindFirestoreRef(key);
     }
-  }) as ReturnType<typeof firestoreRefAction>;
+  }) as (context: RauActionContext<any>, ref?: R) => Promise<any>;
 }
 
 export function bindFirestoreRefAction<ModuleState, R>(
