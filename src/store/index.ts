@@ -169,17 +169,16 @@ export type gettertypes = {
   [K in keyof typeof getters]: ReturnType<(typeof getters)[K]>;
 };
 
-
 export type namespaced = FilteredObj<{
-  actions: FilteredObj<{
-    [N in keyof typeof modules]: typeof modules[N] extends {actions: ActionTree<any, any>}
+  actions: {
+    [N in keyof typeof modules]: typeof modules[N] extends {actions: {[key: string]: any}}
       ? {
           [K in keyof typeof modules[N]["actions"]]:
             NamespacedActionType<typeof modules[N]["actions"][K]>
         }
       : never;
-  }>;
-  getters: FilteredObj<{
+  };
+  getters: {
     [N in keyof typeof modules]: typeof modules[N] extends {getters: object}
       ? {
           [K in keyof typeof modules[N]["getters"]]: ReturnType<
@@ -189,7 +188,7 @@ export type namespaced = FilteredObj<{
           >;
         }
       : never;
-  }>;
+  };
 }>;
 
 declare function addModuleFunc<T, N extends string, K extends string>

@@ -9,6 +9,37 @@ import {
   namespaced,
 } from "@/store";
 
+
+import { FilteredObj } from "@/types/utils";
+export function useNamespacedGetters<
+  N extends keyof namespaced["getters"],
+  K extends keyof Extract<namespaced["getters"],N>
+>(
+  arg: {[M in N]: (keyof namespaced["getters"][M] & K)[]}
+): FilteredObj<{
+  [M in keyof typeof arg]: {
+    [G in K]: G extends keyof namespaced["getters"][M]
+      ? namespaced["getters"][M][G]
+      : never;
+  };
+}> {
+
+  return Object.assign({}, ...Object.entries(arg).map(
+    //@ts-ignore
+    ([namespace, keys]: [N, string[]]) => {
+      return {
+        [namespace]: {
+          ...mapGetters(namespace, keys),
+        },
+      };
+    }));
+}
+
+let test = useNamespacedGetters({
+  runesmodule: ["byName", "byCodepoint"],
+  testmodule2: ["testVal"],
+});
+
 /** Non-namespaced version (or individually namespaced) */
 export function useGetters<K extends keyof gtypes>(names: K[]): { [N in K]: Ref<gtypes[N]> };
 /*export function useGetters<K extends keyof gtypes>(...names: K[]): MappedDict<gtypes, K>;
